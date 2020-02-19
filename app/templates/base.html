@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+{% block head %}
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="data:;base64,=">
+    <title>
+        {% if title %}{{ title }} - CVDemo{% else %}{{ _('Welcome to CVDemo') }}{% endif %}
+    </title>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/cv-style.css') }}">
+
+{% endblock %}
+</head>
+
+{% block content %}
+<body>
+    <!-- Top Navbar -->
+    <nav class="navbar navbar-expand-sm fixed-top navbar-dark bg-dark p-0 shadow">
+        <a class="navbar-brand col-2 col-sm-2 col-md-2 mr-0" style="min-width: 100px ;" href="{{ url_for('main.index') }}">Home</a>
+        <button class="navbar-toggler float-right" type="button" data-toggle="collapse" data-target="#navbar-collapse-1" aria-controls="navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse " id="navbar-collapse-1">
+            <ul class="navbar-nav px-3">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ _('CV Tasks') }}</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item text-nowrap" href="{{ url_for('image_recognition.index') }}">{{ _('Image recognition') }}</a>
+                        <a class="dropdown-item text-nowrap" href="{{ url_for('semantic_segmentation.index') }}">{{ _('Semantic segmentation') }}</a>
+                        <a class="dropdown-item text-nowrap" href="{{ url_for('object_detection.index') }}">{{ _('Object detection') }}</a>
+                    </div>
+                </li>
+
+            </ul>
+        </div>
+    </nav>
+    <!--/Top Navbar -->
+
+
+    <!--  MAIN  CONTAINER-->
+    <div class="container-fluid flex-column justify-content-between">
+      <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
+          <div class="sidebar-sticky">
+            <ul class="nav flex-column"> <span style="font-family: 'Russo One', sans-serif; padding-left: 5px">{{ _('Powered by:') }}</span>
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.python.org/" >
+                  <span> <img src="{{ url_for('static', filename='icons/python.png') }}"> </span>
+                  Python <span class="sr-only">(current)</span>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://flask.palletsprojects.com/en/1.1.x/">
+                  <span> <img src="{{ url_for('static', filename='icons/flask.png') }}"> </span>
+                  Flask
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://pytorch.org/">
+                  <span> <img src="{{ url_for('static', filename='icons/pytorch.png') }}"> </span>
+                  PyTorch
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://getbootstrap.com/">
+                  <span> <img src="{{ url_for('static', filename='icons/bootstrap.png') }}"> </span>
+                  Bootstrap
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://www.jetbrains.com/pycharm/">
+                  <span> <img src="{{ url_for('static', filename='icons/pycharm.png') }}"> </span>
+                  PyCharm
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://colab.research.google.com/">
+                  <span> <img src="{{ url_for('static', filename='icons/colab.png') }}"> </span>
+                  Google Colab
+                </a>
+              </li>
+            </ul>
+
+            <ul class="nav flex-column mb-2"> <span style="font-family: 'Russo One', sans-serif; margin-top: 10px;padding-left: 5px">{{ _('Inspired by:') }}</span>
+              <li class="nav-item">
+                <a class="nav-link" href="http://cs231n.stanford.edu/">
+                  <span> <img src="{{ url_for('static', filename='icons/stanford.png') }}"> </span>
+                  Stanford CS231N
+                </a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="https://ods.ai/">
+                  <span> <img src="{{ url_for('static', filename='icons/ods.png') }}"> </span>
+                  OpenDataScience
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+        <!-- /Sidebar -->
+
+        <!-- Content container -->
+        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
+
+        {# application content needs to be provided in the app_content block #}
+        {% block app_content %}{% endblock %}
+        </main>
+        <!-- /Content container -->
+      </div>
+    </div>
+    <!--  MAIN CONTAINER -->
+<footer>
+  <div style="vertical-align: middle">mailto scientist74@gmail.com</div>
+</footer>
+
+
+{% endblock %}
+
+
+{% block scripts %}
+
+    <script>
+       var g_locale = "{{ g.locale }}";
+    </script>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="{{ url_for('static', filename='JS/jquery-3.4.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='JS/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='JS/bootstrap.min.js') }}"></script>
+
+   <!-- Icons -->
+    <script src="https://unpkg.com/feather-icons/dist/feather.min.js"></script>
+    <script> feather.replace() </script>
+
+    <script src="{{ url_for('static', filename='JS/cv-script.js') }}"></script>
+
+{% endblock %}
+
+</body>
+</html>

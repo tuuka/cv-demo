@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+
+<div class="container-fluid pt-2">
+    <!-- Carousel -->
+    <div id="myCarousel" class="carousel slide d-flex" data-ride="carousel" data-interval="5000">
+
+        <ol class="carousel-indicators" style="position: absolute; top: auto; bottom: -10px">
+            <li data-target="#myCarousel" data-slide-to="0" class="active"></li>
+            <li data-target="#myCarousel" data-slide-to="1"></li>
+            <li data-target="#myCarousel" data-slide-to="2"></li>
+        </ol>
+
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img class="img-fluid" src="{{ url_for('static', filename='images/c-1.jpg') }}" alt="...">
+                <p class="carousel-caption-top">{{ _('Image recognition') }}</p>
+                <div class="d-flex justify-content-center align-content-end" style="position: relative;">
+                    <a class="btn btn-outline-light learn-more-btn" style="" href="{{ url_for('image_recognition.index') }}">{{ _('Learn more') }}</a>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <img class="img-fluid" src="{{ url_for('static', filename='images/c-2.jpg') }}" alt="...">
+                <p class="carousel-caption-top">{{ _('Semantic segmentation') }}</p>
+                <div class="d-flex justify-content-center align-content-end" style="position: relative;">
+                    <a class="btn btn-outline-light learn-more-btn" style="" href="{{ url_for('semantic_segmentation.index') }}">{{ _('Learn more') }}</a>
+                </div>
+            </div>
+
+            <div class="carousel-item">
+                <img class="img-fluid" src="{{ url_for('static', filename='images/c-3.jpg') }}" alt="...">
+                <p class="carousel-caption-top">{{ _('Object detection') }}</p>
+                <div class="d-flex justify-content-center align-content-end" style="position: relative;">
+                    <a class="btn btn-outline-light learn-more-btn" style="" href="{{ url_for('object_detection.index') }}">{{ _('Learn more') }}</a>
+                </div>
+            </div>
+        </div>
+
+        <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+
+    </div>
+    <!-- /Carousel -->
+
+    <div class="card border-dark" style="margin-top: 2vw;">
+      <div class="card-body text-dark text-justify">
+        <p class="card-text ">
+            {{ _('Over the past few years, artificial neural networks (ANN) have spread to almost all areas of industry, medicine, science etc. With the help of the ANNs, self-driving cars function, defects in production, pathology in x-rays are determined. ANNs transform speech into text and vice versa, translate texts between languages, recognize/generate images and much, much more.') }}
+        </p>
+        <p class="card-text">
+            {{ _('The main goal of this site is to demonstrate a small part of the tasks that are currently being implemented mainly with the help of the ANNs. These are machine vision tasks, in particular image recognition, semantic segmentation and object detection. It is assumed that visitors / users have a basic understanding of the functioning of artificial neural networks, convolutional neural networks in particular.') }}
+        </p>
+        <p class="card-text">
+            {{ _('The site was created as a pet-project after the author completed several basic courses to practically consolidate the acquired skills, as well as an attempt to implement the functioning of some "heavy-weighted" ANN models without using expensive hosting with graphics accelerators.') }}
+        </p>
+        <p class="card-text">
+            {{ _('Now, the site contains three sections, demonstrating 3 different tasks of computer vision, you can select a specific section either from the “carousel” above, or from the menu at the top of the page. In each section, the principle of the implementation of this particular task is briefly described and several models of ANN (with their brief description) are presented for demonstration.') }}
+        </p>
+        <p class="card-text">
+            {{ _('It is possible in the future, the site will be expanded. May be the section “image captioning”, as well as “style transfer” will be added.') }}
+        </p>
+        <p class="card-text">
+            {{ _('The site is implemented in Python in the Flask framework. Pytorch is used as a deep learning framework.') }}
+        </p>
+        <p class="card-text">
+            {{ _('Please note that the site is hosted on a free hosting, so the speed of work of some models is quite low. Thinking about optimizing it.') }}
+        </p>
+      </div>
+    </div>
+
+</div>
+
+{% endblock %}

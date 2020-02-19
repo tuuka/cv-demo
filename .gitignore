@@ -1,0 +1,19 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# babel
+*.po
+
+# Packages
+__pycache__
+
+# logs
+logs
+*.log
+
+venv*
+
+.env
+.idea
