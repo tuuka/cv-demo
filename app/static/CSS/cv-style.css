@@ -226,7 +226,7 @@ body {
 	}
 }
 
-#inputlabel, #inputurl{
+#inputlabel1, #inputlabel2, #inputurl{
   margin: 0 3px;
   font-size: calc(8px + 0.8vw);
   padding: 2px auto;
