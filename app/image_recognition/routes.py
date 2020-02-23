@@ -24,3 +24,4 @@ def predict():
         pred = {'error': ''}
         pred['prediction'] = prediction
         return jsonify(pred)
+

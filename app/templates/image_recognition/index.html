@@ -71,21 +71,21 @@
 
     <!-- Input form -->
     <form style="display: block; position: relative;margin: 1rem 0" id="upload-file" method="post" enctype="multipart/form-data">
-      <div class="d-flex" style="justify-content: center; justify-items: center; ">
+      <div class="block-input-modal" style=""></div> <!-- Block input form -->
+        <div class="d-flex" style="justify-content: center; justify-items: center; ">
         <label class="btn btn-outline-primary text-nowrap" style="" for="inputfile" id="inputlabel1"> {{ _('Browse file') }} </label>
         <input id="inputfile" type="file" style="display: none;" name="file" class="form-control-file"  accept="image/*">
         <input type="url" id="inputurl" class="form-control" style="padding: 0; height: auto" name="img-url" placeholder="{{ _('or paste image here') }}" />
 
         <label class="btn btn-outline-primary" style="" for="camera-input" id="inputlabel2"> <span data-feather="camera"></span></label>
         <input id="camera-input" type="file" style="display: none;" accept="image/*" capture="camera" />
-
       </div>
   </form>
     <!-- /Input form -->
 
     <!-- Preview and predict form -->
   <div class="d-flex flex-row justify-content-around preview-predict-form" style="">
-     <div class="block-input-modal" style="position: absolute; width: 100%; height: 100%">
+     <div class="block-input-modal" style="position: absolute; width: 100%; height: 100%"> <!-- Block input form -->
          <div style="position: absolute; top: 50%; left: 50%; transform: translateX(-50%) translateY(-50%); font-size: 3vw; font-weight: 600 ;">
              <span class="spinner-grow spinner-grow-lg" style="vertical-align: middle" role="status" aria-hidden="true"></span>
              <span class="wait-text-blinking">{{ _('Please wait') }}</span>
@@ -108,6 +108,7 @@
 
     <!-- Model change form -->
     <div class="d-block" style="position: relative;">
+        <div class="f-flex block-input-modal" style=" "></div> <!-- Block models change -->
         <ul class="nav nav-pills" id="models-tab" role="tablist">
             <li class="nav-item">
                 <a class="nav-link active" id="model1-tab" data-target="#model1-href" data-toggle="pill" href="./model?model=mobilenet_v2"  role="tab" aria-controls="model1-href" aria-selected="true">MobileNet</a>
