@@ -85,6 +85,40 @@ $(document).ready(function() {
     }
 
 
+    /* IMAGE PREVIEW CHANGE HANDLER - prediction is here */
+    $('#imgpreview').bind('load', function (e) {                        // Привязка события к изменению изображения
+        let ImgBlob = e.target.src;                                     // Извлечение изображения из превью
+        FillClassPredict(0, true);                          // Очистка progress bars от старых данных
+        BlockInput('block-input-modal', true);       // Блокировка ввода
+        fetch(ImgBlob).then(i => i.blob()).then(function (b) {          // Преобразование изображения в Blob
+            let urlpost = '/' + mode + '/predict?' +                    //Генерация ссылки на предикт с названием активной модели в аргументах
+              $('#models-tab a[aria-selected="true"]')[0].href.split('?').pop();
+            Predict(b, urlpost)                                         // Отправка данных на сервер, ожидание ответа
+                .then(function (pred) {                        // Ответ получен
+                    if (!pred['error']) {                               // Проверяем предикт
+                        FillClassPredict(pred);                         // Отображаем предсказания, если модель на сервере отработала без ошибок
+                    } else {
+                        alert(pred['error']);                           // В противном случае выводим сообщение об ошибке
+                    }
+                    BlockInput('block-input-modal', false);             // Убираем блокировку
+                }).catch(function (error) {                             // В случае неудачного fetch-запроса убираем блокировку
+                    BlockInput('block-input-modal', false);             // и выводим в консоль отладочное сообщение
+                    console.log('There has been problem with fetch operation when predicting:' + error.message);
+            });
+        });
+    });
+
+    async function Predict(imgpost, urlpost){           // аргументы: файл и url. Маркер модели (название) будет в url
+        let form_data = new FormData();                 // создаем форму для отправки
+        form_data.append('file', imgpost);        // добавляем файл
+        const response = await fetch (urlpost,{    // отправляем форму с файлом на сервер по
+            method: 'POST',                             // заданному url
+            body: form_data
+        });
+        return await response.json();                   // ждем ответа сервера и преобразовываем его в json
+    }
+
+
     function FillClassPredict(pred, empty=false){
         let prediction = pred['prediction'];
         if (mode == 'image_recognition') {
@@ -120,7 +154,55 @@ $(document).ready(function() {
                     }
                 }
             }
+        } else if (mode == 'object_detection') {
+            let c = document.getElementById("detection_canvas");
+            c.style.opacity = "1.0";
+            let ctx = c.getContext("2d");
+            ctx.clearRect(0,0, c.width, c.height);
+            $('#img_seg').attr('src', '');
+            if (!empty) {
+                let imgpreview = document.getElementById("imgpreview");
+                c.setAttribute('width', imgpreview.width);
+                c.setAttribute('height', imgpreview.height);
+                for (let i = 0; i < prediction['boxes'].length; i++) {
+                    let x1 = Math.round(c.width * prediction['boxes'][i][0]);
+                    let y1 = Math.round(c.height * prediction['boxes'][i][1]);
+                    let x2 = Math.round(c.width * prediction['boxes'][i][2]);
+                    let y2 = Math.round(c.height * prediction['boxes'][i][3]);
+                    DrawRect(ctx, x1, y1, x2, y2,
+                            prediction['colors'][i],
+                            prediction['labels'][i],
+                            parseInt(c.height*0.025)); //text height
+                }
+                if ('masks' in prediction) {
+                    $('#img_seg').attr('src', prediction['masks']);
+                    $('#img_seg').css("opacity", "0.4"); //transparency of mask
+                }
+            }
         }
+    }
+
+
+    function DrawRect(ctx, x1, y1, x2, y2, color, text='', text_size=10, text_pad=5, shadow=1){
+        ctx.beginPath();
+        ctx.strokeStyle = color;
+        ctx.setLineDash([5, 3]);
+        ctx.font = text_size.toString(10) + "px sans-serif";
+        let text_width = ctx.measureText(text).width;
+        text_width = (text_width > parseInt((x2-x1)*0.8)) ? parseInt((x2-x1)*0.8) : text_width;
+        ctx.moveTo(x1 + text_pad, y1);
+        ctx.lineTo(x1, y1);
+        ctx.lineTo(x1, y2);
+        ctx.lineTo(x2, y2);
+        ctx.lineTo(x2, y1);
+        ctx.lineTo(x1 + text_pad + text_width, y1);
+        ctx.stroke();
+        ctx.fillStyle = color;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.shadowColor = GetContrastTextColor(color);
+        ctx.shadowBlur = shadow;
+        ctx.fillText(text, x1+text_pad, y1+parseInt(text_size*0.3), text_width);
     }
 
     /* Brightness of color detecting to make text contrast*/
@@ -147,40 +229,6 @@ $(document).ready(function() {
         else {return ("black");}
     }
 
-    async function Predict(imgpost, urlpost){           // аргументы: файл и url. Маркер модели (название) будет в url
-        let form_data = new FormData();                 // создаем форму для отправки
-        form_data.append('file', imgpost);        // добавляем файл
-        const response = await fetch (urlpost,{    // отправляем форму с файлом на сервер по
-            method: 'POST',                             // заданному url
-            body: form_data
-        });
-        return await response.json();                   // ждем ответа сервера и преобразовываем его в json
-    }
-
-
-    /* IMAGE PREVIEW CHANGE HANDLER - prediction is here */
-    $('#imgpreview').bind('load', function (e) {                        // Привязка события к изменению изображения
-        let ImgBlob = e.target.src;                                     // Извлечение изображения из превью
-        FillClassPredict(0, true);                          // Очистка progress bars от старых данных
-        BlockInput('block-input-modal', true);       // Блокировка ввода
-        fetch(ImgBlob).then(i => i.blob()).then(function (b) {          // Преобразование изображения в Blob
-            let urlpost = '/' + mode + '/predict?' +                    //Генерация ссылки на предикт с названием активной модели в аргументах
-              $('#models-tab a[aria-selected="true"]')[0].href.split('?').pop();
-            Predict(b, urlpost)                                         // Отправка данных на сервер, ожидание ответа
-                .then(function (pred) {                        // Ответ получен
-                    if (!pred['error']) {                               // Проверяем предикт
-                        FillClassPredict(pred);                         // Отображаем предсказания, если модель на сервере отработала без ошибок
-                    } else {
-                        alert(pred['error']);                           // В противном случае выводим сообщение об ошибке
-                    }
-                    BlockInput('block-input-modal', false);             // Убираем блокировку
-                }).catch(function (error) {                             // В случае неудачного fetch-запроса убираем блокировку
-                    BlockInput('block-input-modal', false);             // и выводим в консоль отладочное сообщение
-                    console.log('There has been problem with fetch operation when predicting:' + error.message);
-            });
-        });
-    });
-
 
     /* Making some areas blocked until necessary action done */
     function BlockInput(classToBlock, activate=false) {
@@ -203,6 +251,14 @@ $(document).ready(function() {
     $('#description-text').on("click",function(e) {
         //console.log(e);
         $('#PageModalDescription').modal('show');
+    });
+
+    //Canvas clicking - bounding boxes hide/show
+    $('#detection_canvas').on("click",function(e) {
+        let canv = e.target;
+        //console.log('canv.style.opacity: ', canv.style.opacity);
+        //console.log('typof canv.style.opacity: ', typeof canv.style.opacity);
+        canv.style.opacity  = (canv.style.opacity == 0) ? 1.0 : 0.0
     });
 
 

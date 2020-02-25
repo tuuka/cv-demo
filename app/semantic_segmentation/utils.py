@@ -1,7 +1,7 @@
 import torch, io, base64
 from PIL import Image
 from app.semantic_segmentation import models
-from app.utils import transform_image, hex_colors, random_colors
+from app.utils import transform_image, hex_colors
 
 
 labels_pascal = ['background', 'aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus',
