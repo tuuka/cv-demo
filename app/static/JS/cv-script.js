@@ -153,6 +153,7 @@ $(document).ready(function() {
                         base_div.append(elem);
                     }
                 }
+                $('div .pred-item').on('click', Pred_Item_Click); /* Register onclick handler on bars just created */
             }
         } else if (mode == 'object_detection') {
             let c = document.getElementById("detection_canvas");
@@ -238,6 +239,59 @@ $(document).ready(function() {
             if (activate){$(x[i]).addClass('overlay')}
             else {$(x[i]).removeClass('overlay')}
         }
+    }
+
+    /* CLICK ON PREDICTION TEXT TO TRANSLATE HANDLER */
+    $('div .pred-item').on('click', Pred_Item_Click);
+
+    function Pred_Item_Click(e) {
+        DetectLanguage($('div .pred-item:first').text().split('-').pop()).then(function (lg) {
+            if (lg && (lg != g_locale)) {
+                for (let i = 0; i < $('div .pred-item').length; i++) {
+                    let elem = $("div .pred-item:nth-child(" + String(i + 1) + ")");
+                    elem.addClass('progress-bar-striped');
+                    elem.addClass('progress-bar-animated');
+                    Translate(elem.text().split('-').pop(), lg, g_locale)
+                        .then(function (response) {
+                            if (response.ok) {
+                                return response.json()
+                            }
+                        }).then(function (translation) {
+                        let old = elem.text().split('-').slice(0, -1);
+                        //console.log(mode);
+                        if (mode == 'image_recognition') {
+                            elem.text(old + '-' + translation['text'].toLowerCase());
+                        } else if (mode == 'semantic_segmentation') {
+                            elem.text(translation['text'].toLowerCase());
+                        }
+                        elem.removeClass('progress-bar-striped');
+                        elem.removeClass('progress-bar-animated');
+                    })
+                }
+            }
+        })
+    }
+
+    async function DetectLanguage(probe){
+        let form_data = new FormData();
+        form_data.append('text', probe);
+        const response = await fetch ('/lgdetect',{
+            method: 'POST',
+            body: form_data
+        });
+        let lg = await response.json();
+        return lg['lg']
+    }
+
+    function Translate(probe, sourcelg, destlg){
+        let form_data = new FormData();
+        form_data.append('text', probe);
+        form_data.append('source_language', sourcelg);
+        form_data.append('dest_language', destlg);
+        return fetch ('/translate',{
+            method: 'POST',
+            body: form_data
+        })
     }
 
 

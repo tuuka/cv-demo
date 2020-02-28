@@ -1,7 +1,7 @@
-from flask import Flask
+from flask import Flask, request, current_app
 from config import Config
 from flask_babel import Babel
-import torch
+
 
 application = Flask(__name__)
 application.config.from_object(Config)
@@ -15,3 +15,8 @@ application.register_blueprint(main_bp)
 application.register_blueprint(image_recognition_bp)
 application.register_blueprint(semantic_segmentation_bp)
 application.register_blueprint(object_detection_bp)
+
+
+@babel.localeselector
+def get_locale():
+    return request.accept_languages.best_match(current_app.config['LANGUAGES'])
