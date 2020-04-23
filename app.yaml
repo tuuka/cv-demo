@@ -1,0 +1,28 @@
+runtime: python
+env: flex
+
+runtime_config:
+  python_version: 3.7
+
+# This sample incurs costs to run on the App Engine flexible environment.
+# The settings below are to reduce costs during testing and are not appropriate
+# for production use. For more information, see:
+# https://cloud.google.com/appengine/docs/flexible/python/configuring-your-app-with-app-yaml
+
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 3
+  cool_down_period_sec: 180
+  cpu_utilization:
+    target_utilization: 0.8
+
+resources:
+  cpu: 2
+  memory_gb: 6
+  disk_size_gb: 20
+
+env_variables:
+  YANDEX_TRANSLATOR_KEY: trnsl.1.1.20190906T181416Z.a31a381ea85dbbaa.1b6bb8a758d46f1cdca3afad8d71b15f5b65a4fb  
+  # USE_GCS = True
+
+entrypoint: gunicorn -b :$PORT first:application -w 4 --timeout 120
