@@ -52,19 +52,7 @@
     </div>
     <!-- /Brief page description on top-->
 
-    <!-- Input form -->
-    <form style="display: block; position: relative;margin: 1rem 0" id="upload-file" method="post" enctype="multipart/form-data">
-      <div class="block-input-modal" style=""></div> <!-- Block input form -->
-      <div class="d-flex" style="justify-content: center; justify-items: center; ">
-        <label class="btn btn-outline-primary text-nowrap" style="" for="inputfile" id="inputlabel1"> {{ _('Browse file') }} </label>
-        <input id="inputfile" type="file" style="display: none;" name="file" class="form-control-file"  accept="image/*">
-        <input type="url" id="inputurl" class="form-control" style="padding: 0; height: auto" name="img-url" placeholder="{{ _('or paste image here') }}" />
-
-        <label class="btn btn-outline-primary" style="" for="camera-input" id="inputlabel2"> <span data-feather="camera"></span></label>
-        <input id="camera-input" type="file" style="display: none;" accept="image/*" capture="camera" />
-      </div>
-    </form>
-    <!-- /Input form -->
+    {% include 'input_form.html' %}
 
     <!-- Preview and predict form -->
     <div class="d-flex flex-row justify-content-between preview-predict-form" style="">
@@ -103,6 +91,12 @@
             <li class="nav-item">
                 <a class="nav-link" id="model2-tab" data-target="#model2-href" data-toggle="pill" href="./model?model=resnet101_deeplab_coco20" role="tab" aria-controls="model2-href" aria-selected="false">ResNetDeepLab</a>
             </li>
+<!--            <li class="nav-item">-->
+<!--                <a class="nav-link" id="model3-tab" data-target="#model3-href" data-toggle="pill" href="./model?model=resnet101_deeplab_ade20" role="tab" aria-controls="model3-href" aria-selected="false">ResNetDeepLab(ADE20K)</a>-->
+<!--            </li>-->
+<!--            <li class="nav-item">-->
+<!--                <a class="nav-link" id="model4-tab" data-target="#model4-href" data-toggle="pill" href="./model?model=HRNET_ade20" role="tab" aria-controls="model4-href" aria-selected="false">HRNET(ADE20K)</a>-->
+<!--            </li>-->
         </ul>
         <div class="tab-content models-tab" id="models-tabContent" style="">
             <!-- ResNet+FCN  -->

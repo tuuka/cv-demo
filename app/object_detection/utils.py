@@ -1,8 +1,65 @@
-import io, base64, torch, torchvision
-from flask import current_app
-from app.object_detection import models
-from app.utils import random_colors
-from PIL import Image
+from app.utils import print_lambda_timings#, invoke_lambda_function_synchronous
+from flask import current_app as app
+import json, base64
+from io import BytesIO
+from app import cache
+import requests
+
+@cache.memoize()
+def get_prediction(modelname=None, image_bytes=None):
+    if (image_bytes is None) or (modelname is None): return None
+    coded_img = base64.b64encode(BytesIO(image_bytes).getvalue()).decode("utf-8")
+    lambda_params = {'score_threshold': app.config.get('DETECTION_SCORE_THRESHOLD'),
+                     'size': 800,
+                     'model': modelname,
+                     'data': coded_img}
+
+    # TODO Change this
+    # Experimental TorchScript quantized  MaskRCNN model
+    if modelname == 'maskrcnn_quantized':
+        r = requests.post('https://tuuka-maskrcnn-quant.ue.r.appspot.com/predict',
+                          files={'file': image_bytes})
+        r = json.loads(r.text)
+    else:
+        if app.config.get('LAMBDA_LOCAL'):
+            from app.cvdemolambda import lambda_handler
+            r = lambda_handler(lambda_params, None)
+        else:
+            # invokation via boto3 extension (AWS Credential and other params needed)
+            '''
+            r = invoke_lambda_function_synchronous('detectiononnxfunction',
+                                               lambda_params,
+                                               region_name=app.config.get('BOTO3_REGION'))
+            r = json.load(r['Payload'])
+            '''
+            # Invoke through APIGateway
+            r = requests.post(app.config.get('LAMBDA_URL'),
+                              data=json.dumps(lambda_params).encode())
+            r = json.loads(r.text)
+        print_lambda_timings(r)
+
+    data = json.loads(r['data'])
+    pred = {
+        'boxes' : data['boxes'],
+        'labels' : data['labels'],
+        'scores' : data['scores'],
+        'colors' : data['colors'],
+        'masks' : data.get('masks', None),
+        'time' : None
+    }
+
+    timings = r.get('time', None)
+    if timings is not None:
+        pred['time'] = timings.get('all_time', None)
+
+    # TODO Change this when models trained on other dataset will be added
+    label_list = labels_coco_2017
+
+    pred['labels'] = [label_list[pred['labels'][i]] for i in range(len(pred['labels']))]
+    if pred['masks'] is not None:
+        if (len(pred['masks']) > 0) and not ('data:image/jpeg;base64' in pred['masks']):
+            pred['masks'] = f'data:image/jpeg;base64,{pred["masks"]}'
+    return pred
 
 
 labels_coco_2017 = ['background', 'person', 'bicycle', 'car', 'motorcycle', 'airplane',
@@ -17,63 +74,5 @@ labels_coco_2017 = ['background', 'person', 'bicycle', 'car', 'motorcycle', 'air
     'bed', 'mirror', 'dining table', 'window', 'desk', 'toilet', 'door', 'tv',
     'laptop', 'mouse', 'remote', 'keyboard', 'cell phone', 'microwave', 'oven',
     'toaster', 'sink', 'refrigerator', 'blender', 'book', 'clock', 'vase', 'scissors',
-    'teddy bear', 'hair drier', 'toothbrush', 'hair brush']
-
-
-def get_prediction(modelname=None, image_bytes=None):
-    if (image_bytes is None) or (modelname is None): return None
-    img = Image.open(io.BytesIO(image_bytes)).convert('RGB')
-    orig_size = img.size
-    img = torchvision.transforms.ToTensor()(img)
-    model = models.model_load(modelname)
-
-    # to make boxes' coordinates relative
-    XYXY = list(img.size())[1:][::-1]
-    XYXY = torch.tensor(XYXY + XYXY).float()
-
-    labels = labels_coco_2017
-
-    # reduce size of image proccessed by model if needed
-    # model.transform.max_size = 640
-    # model.transform.min_size = (480,)
-
-    with torch.no_grad():
-        model.eval()
-        prediction = model([img])[0]
-
-    pred = {
-        'boxes'  : [],
-        'labels' : [],
-        'colors' : [],
-        'scores': [],
-        'orig_size' : list(orig_size)
-    }
-
-    N = len(prediction['scores'][prediction['scores'] > current_app.config['DETECTION_SCORE_THRESHOLD']])
-    pred['colors'] = random_colors(N)
-
-    # Take TopN scores prediction and convert all to list cause
-    # tensor is not JSON serializable
-    for i in range(N):
-        pred['boxes'].append((prediction['boxes'][i].cpu() / XYXY).tolist())
-        pred['labels'].append(labels[prediction['labels'][i]])
-        pred['scores'].append(prediction['scores'][i].item())
-
-    # making color mask for instance segmentation by putting objects with high scores above objects with less scores
-    if (prediction.get('masks') is not None) & (len(prediction['masks'])>0):
-        r = torch.zeros_like(prediction['masks'][0]).byte()
-        g = torch.zeros_like(prediction['masks'][0]).byte()
-        b = torch.zeros_like(prediction['masks'][0]).byte()
-        # backwise order to order masks according scores
-        for i in range(len(pred['boxes']))[::-1]:
-            mask = (prediction['masks'][i] > 0.5)
-            # converting hex to rgb ..
-            r[mask], g[mask], b[mask] = tuple(int(pred['colors'][i][j:j+2], 16) for j in (1, 3, 5))
-
-        img_seg = torch.cat([r, g, b], 0)
-        img_seg = Image.fromarray(img_seg.permute(1, 2, 0).byte().cpu().numpy()).resize(orig_size)
-        buffered = io.BytesIO()
-        img_seg.save(buffered, format="JPEG")
-        img_seg = 'data:image/jpeg;base64,' + base64.b64encode(buffered.getvalue()).decode("utf-8")
-        pred['masks'] = img_seg
-    return pred
+    'teddy bear', 'hair drier', 'toothbrush', 'hair brush',
+]

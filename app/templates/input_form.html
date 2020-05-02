@@ -1,0 +1,12 @@
+    <!-- Input form -->
+    <form style="display: block; position: relative;margin: 1rem 0" id="upload-file" method="post" enctype="multipart/form-data">
+      <div class="block-input-modal" style=""></div> <!-- Block input form -->
+      <div class="d-flex" style="justify-content: center; justify-items: center; ">
+        <label class="btn btn-outline-primary text-nowrap" style="" for="inputfile" id="inputlabel1"> {{ _('Browse file') }} </label>
+        <input id="inputfile" type="file" style="display: none;" name="file" class="form-control-file"  accept="image/*">
+        <input type="url" id="inputurl" class="form-control" style="padding: 0; height: auto" name="img-url" placeholder="{{ _('or paste image here') }}">
+        <label class="btn btn-outline-primary" style="" for="camera-input" id="inputlabel2"> <span data-feather="camera"></span></label>
+        <input id="camera-input" type="file" style="display: none;" accept="image/*" capture="camera">
+      </div>
+    </form>
+    <!-- /Input form -->

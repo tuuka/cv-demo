@@ -1,9 +1,14 @@
-from flask import render_template, request, jsonify
+from flask import render_template, jsonify, request
+from flask import current_app as app
 from app.semantic_segmentation import bp, utils
 from flask_babel import _
+import time
+from app.utils import print_memory
 
-@bp.route('/semantic_segmentation/', methods=['GET'])
-@bp.route('/semantic_segmentation/index.html', methods=['GET'])
+
+
+@bp.route('/semantic_segmentation/', methods=['GET', 'POST'])
+@bp.route('/semantic_segmentation/index.html', methods=['GET', 'POST'])
 def index():
     return render_template('semantic_segmentation/index.html', title=_('Semantic segmentation'))
 
@@ -14,12 +19,25 @@ def predict():
         if 'file' not in request.files:
             return jsonify({'error':'No source img file'})
         modelname = request.args.get('model', None)
+        print_memory()
         file = request.files.get('file')
         if not file:
             return jsonify({'error':'Not correct source img file'})
+
+        t = time.time()
         file = file.read()
-        prediction, classes_map = utils.get_prediction(modelname=modelname, image_bytes=file)
-        pred = {'error': ''}
-        pred['prediction'] = prediction
-        pred['classes_map'] = classes_map
+
+        try:
+            prediction = utils.get_prediction(modelname=modelname,
+                                                           image_bytes=file)
+        except Exception as e:
+            app.logger.error(f'Error in get_prediction: {e}.')
+            return jsonify({'error': f'Can not predict. Exception: {e}.'})
+
+        pred = {'error': '',
+                'prediction' : prediction
+                }
+        dt = time.time() - t
+        app.logger.info(f'Segmentation model prediction time: {dt:.02f} seconds')
+        pred['time'] = round(dt, 2)
         return jsonify(pred)

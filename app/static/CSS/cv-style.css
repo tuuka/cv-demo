@@ -1,14 +1,11 @@
-
 body {
   background: #ebebeb;
-  font-size: .875rem;
-  font-family: Verdana;
+  font-size: 100%;
+  font-family: Verdana, sans-serif;
 }
 
-.feather {
-  width: 16px;
-  height: 16px;
-  vertical-align: text-bottom;
+.hidden {
+  display: none;
 }
 
 /* Sidebar */
@@ -19,7 +16,7 @@ body {
   bottom: 0;
   left: 0;
   z-index: 1; /* Behind the navbar */
-  padding: 48px 0 0; /* Height of navbar */
+  padding: 48px 0 0 0; /* Height of navbar */
   box-shadow: inset -1px 0 0 rgba(0, 0, 0, .1);
 }
 
@@ -44,31 +41,16 @@ body {
   color: #333;
 }
 
-.sidebar .nav-link .feather {
-  margin-right: 4px;
-  color: #999;
-}
-
-.sidebar .nav-link.active {
+.sidebar .nav-link:hover {
   color: #007bff;
 }
 
-.sidebar .nav-link:hover .feather,
-.sidebar .nav-link.active .feather {
-  color: inherit;
-}
-
-.sidebar-heading {
-  font-size: .75rem;
-  text-transform: uppercase;
-}
-
 .sidebar .nav-link > span > img{
-    height: calc(10px + 0.4vw);
+  height: 1em;
 }
 
 .sidebar .nav-link:hover span > img{
-    height: calc(14px + 0.4vw);
+  height: 1.2em;
 }
 
 
@@ -98,7 +80,6 @@ body {
 .carousel-caption-top{
   min-height: 10%;
   text-align: center;
-  /* font-family: 'Russo one', sans-serif; */
   font-weight: 400;
   letter-spacing: 0.5vw;
   display: block;
@@ -112,7 +93,6 @@ body {
   opacity: 0 ;
   background-color: rgba(173, 189, 255, 0.5);
   -ms-background-color: rgba(173, 189, 255, 0.5);
-  text-align: center;
   animation: animate-carousel-caption-top 1s normal forwards ease;
   animation-delay: 200ms;
   z-index: 1;
@@ -165,7 +145,6 @@ body {
 }
 
 .carousel-item img {
-  /*display: block;*/
   width: 100%;
   max-height: 420px;
   border-radius: 2vw;
@@ -226,13 +205,14 @@ body {
 	}
 }
 
-#inputlabel1, #inputlabel2, #inputurl{
+#inputlabel1, #inputlabel2,  #inputurl{
+  display: inline-flex;
   margin: 0 3px;
   font-size: calc(8px + 0.8vw);
-  padding: 2px auto;
-  vertical-align: middle;
-  height: auto;
-
+  padding: 0 10px;
+  align-items: center;
+  height: calc(20px + 1.2vw);
+  line-height: 1;
 }
 
 .preview-predict-form {
@@ -268,8 +248,7 @@ body {
 
 .models-tab{
   font-size: calc(8px + 1.2vw);
-  /* font-family: "Yanone Kaffeesatz"; */
-  font-weight: 300;
+  /*font-weight: 300;*/
   text-align: justify;
   line-height: 1.5;
 }
@@ -294,16 +273,3 @@ footer {
   text-align: center;
 }
 
-.timeline_more {
-  text-decoration: none;
-  color: #28a745;
-}
-
-.timeline_more:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.timeline_more .grey-text {
-  font-size: calc(6px + 0.5vw);
-}

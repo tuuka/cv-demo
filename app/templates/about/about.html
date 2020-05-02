@@ -1,0 +1,117 @@
+{% extends "base.html" %} {% block app_content %}
+
+<div class="container-fluid pt-2 about-container">
+  <div class="card border-dark">
+    <!-- Timeline -->
+    <div class="container z-depth-1 my-1 py-5 px-4 px-lg-0">
+      <!-- Section -->
+      <section>
+        <h3 class="font-weight-bold text-center dark-grey-text pb-2">
+          {{ _('How it\'s made and who made it. ') }}
+          <span style="font-size: x-small;"
+            ><br />{{ _('(Only in russian for now)') }}</span
+          >
+        </h3>
+        <hr class="w-header my-1" />
+        <p class="text-justify pt-2 px-3 mb-5"></p>
+
+        <div class="row">
+          <div class="col-lg-8 mx-auto">
+            <ol class="timeline">
+              <li class="timeline-element">
+                <h5 class="font-weight-bold dark-grey-text mb-1">Reserved</h5>
+                <p class="text-muted">
+                  Some text
+                  <span class="timeline_more" id="timeline1">Подробнее</span>
+                </p>
+              </li>
+              <li class="timeline-element">
+                <h5 class="font-weight-bold dark-grey-text mb-1">Reserved</h5>
+                <p class="text-muted">
+                  Some text
+                  <span class="timeline_more" id="timeline2">Подробнее</span>
+                </p>
+              </li>
+            </ol>
+          </div>
+        </div>
+      </section>
+      <!-- //Section -->
+    </div>
+    <!-- //Timeline -->
+  </div>
+
+  <!-- Modal pages -->
+  <!-- Modal 1 -->
+  <div
+    class="modal fade timeline-modal"
+    id="TimeLineModal1"
+    tabindex="-1"
+    role="dialog"
+  >
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <p class="modal-title">{{ _('Reserved') }}</p>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body text-justify">
+          Some text
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Modal 1 -->
+
+  <!-- Modal 2 -->
+  <div
+    class="modal fade timeline-modal"
+    id="TimeLineModal2"
+    tabindex="-1"
+    role="dialog"
+  >
+    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <p class="modal-title">{{ _('Reserved') }}</p>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body text-justify">
+          Some text
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- /Modal 2 -->
+
+  <!-- /Modal pages -->
+</div>
+
+<script>
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("code-spoiler")) {
+      e.target.toggleAttribute("open");
+      let pre = e.target.nextElementSibling;
+      pre.toggleAttribute("open");
+      setTimeout(function () {
+        pre.toggleAttribute("visible");
+      }, 10);
+    }
+  });
+</script>
+
+{% endblock %}

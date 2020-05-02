@@ -1,19 +1,20 @@
-from flask import render_template, g, jsonify, request
+from flask import render_template, request, g, jsonify
 from app.main import bp
 from flask_babel import _, get_locale
 from app.translate import translate, detect_language
 
-
 @bp.before_app_request
 def before_request():
     g.locale = str(get_locale())
-
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
 def index():
     return render_template('index.html', title=_('Home'))
 
+@bp.route('/about', methods=['GET'])
+def about():
+    return render_template('about/about.html', title=_('About'))
 
 @bp.route('/translate', methods=['POST'])
 def translate_text():
