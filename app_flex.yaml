@@ -22,7 +22,7 @@ resources:
   disk_size_gb: 20
 
 env_variables:
-  YANDEX_TRANSLATOR_KEY: trnsl.1.1.20190906T181416Z.a31a381ea85dbbaa.1b6bb8a758d46f1cdca3afad8d71b15f5b65a4fb  
+  YANDEX_TRANSLATOR_KEY: /*YOU KEY*/
   # USE_GCS = True
 
-entrypoint: gunicorn -b :$PORT first:application -w 4 --timeout 120
+entrypoint: gunicorn -b :$PORT cv-demo:application -w 4 --timeout 120

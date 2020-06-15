@@ -1,6 +1,6 @@
 Flask==1.1.1
 Flask-Babel
-Flask-Caching
+#Flask-Caching
 Flask-Cors
 #boto3
 Pillow

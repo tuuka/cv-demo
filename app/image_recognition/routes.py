@@ -1,43 +1,53 @@
-from flask import render_template, jsonify, request
-from app.image_recognition import bp, utils
-import time
-from flask_babel import _
-from app.utils import print_memory
-from flask import current_app as app
+from flask import render_template
+from app.image_recognition import bp
+from flask_babel import _, lazy_gettext as _l
+from app.utils import get_mode_img_filename
+from app.utils import get_text_from_babel_file
+
+
+mode = 'image_recognition'
+mode_description = {'title': _l('Image recognition'),
+                    'desc_html': f'{mode}/modal_description.html'}
+
+models_list = [
+   {'name': 'MobileNetV2',
+    'active': 'true',
+    'id':'mobilenetv2',
+    'card_header': _l('Pretrained on the ImageNet1000 dataset.'),
+    'description': f'{mode}/mobilenetv2_description.html',
+    'dataset': 'imagenet',
+    'img_size': 224},
+   {'name': 'ResNet34',
+    'active': 'false',
+    'id':'resnet34',
+    'card_header': _l('Pretrained on the ImageNet1000 dataset.'),
+    'description': f'{mode}/resnet_description.html',
+    'dataset': 'imagenet',
+    'img_size': 224},
+   {'name': 'Resnet101',
+    'active': 'false',
+    'id':'resnet101',
+    'card_header': _l('Pretrained on the ImageNet1000 dataset.'),
+    'description': f'{mode}/resnet_description.html',
+    'dataset': 'imagenet',
+    'img_size': 224},
+]
 
 
 @bp.route('/image_recognition/', methods=['GET', 'POST'])
 @bp.route('/image_recognition/index.html', methods=['GET', 'POST'])
 def index():
-    return render_template('image_recognition/index.html', title=_('Image recognition'))
-
-@bp.route('/image_recognition/predict', methods=['POST'])
-def predict():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return jsonify({'error':'No source img file'})
-        modelname = request.args.get('model', None)
-        print_memory()
-
-        file = request.files.get('file')
-        if not file:
-            return jsonify({'error':'Not correct source img file'})
-
-        t = time.time()
-        file = file.read()
-
-        try:
-            prediction = utils.get_prediction(modelname=modelname, image_bytes=file)
-        except Exception as e:
-            app.logger.error('Error in get_prediction: {}.'.format(e))
-            return jsonify({'error': 'Can not predict. Error: {}.'.format(e)})
-
-        pred = {'error': ''}
-        pred['prediction'] = prediction
-
-        dt = time.time() - t  # get execution time
-        app.logger.info(f'Recognition model prediction time: {dt:.02f} seconds')
-        pred['time'] = round (dt, 2)
-        return jsonify(pred)
-
+    imagenet = get_text_from_babel_file('imagenet_class_index.txt')
+    labels = {
+        'imagenet': [_(l) for l in imagenet],
+    }
+    return render_template('topics_index.html',
+                           title=_('Image recognition'),
+                           mode=mode,
+                           mode_img=get_mode_img_filename(mode),
+                           models_list=models_list,
+                           mode_description=mode_description,
+                           labels=labels,
+                           topN=5
+                           )
 

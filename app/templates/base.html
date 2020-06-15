@@ -1,157 +1,179 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-{% block head %}
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="description" content="">
-    <meta name="author" content="Tuuka">
-    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+  <head>
+    {% block head %}
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="Toy project for some DL models implementations" />
+    <meta name="author" content="Tuuka" />
+    <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon" />
     <title>
-        {% if title %}{{ title }} - CVDemo{% else %}{{ _('Welcome to CVDemo') }}{% endif %}
+      {% if title %}{{ title }} - CVDemo{% else %}{{ _('Welcome to CVDemo') }}{% endif %}
     </title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/cv-style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='CSS/about.css') }}">
-{% endblock %}
-</head>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Fira+Sans+Condensed&display=swap" rel="stylesheet" />
+<!--    <link href="https://fonts.googleapis.com/css?family=Lobster&display=swap" rel="stylesheet" />-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/topics.css') }}" />
+    {% endblock %}
+  </head>
 
-{% block content %}
-<body>
-    <!-- Top Navbar -->
-    <nav class="navbar navbar-expand-sm fixed-top navbar-dark bg-dark p-0 shadow">
-        <a class="navbar-brand col-2 col-sm-2 col-md-2 mr-0" style="min-width: 100px ;" href="{{ url_for('main.index') }}">Home</a>
-        <button class="navbar-toggler float-right" type="button" data-toggle="collapse" data-target="#navbar-collapse-1" aria-controls="navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse " id="navbar-collapse-1">
-            <ul class="navbar-nav px-3">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ _('CV Tasks') }}</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item text-nowrap" href="{{ url_for('image_recognition.index') }}">{{ _('Image recognition') }}</a>
-                        <a class="dropdown-item text-nowrap" href="{{ url_for('semantic_segmentation.index') }}">{{ _('Semantic segmentation') }}</a>
-                        <a class="dropdown-item text-nowrap" href="{{ url_for('object_detection.index') }}">{{ _('Object detection') }}</a>
-                    </div>
-                </li>
 
-                <li class="nav-item ">
-                    <a class="nav-link text-nowrap" href="{{ url_for('main.about') }}">{{ _('About') }}</a>
+  <body>
+    <!-- Container -->
+    <div class="container-fluid">
+      <!-- Row -->
+      <div class="row flex-column flex-md-row">
+        <!-- Main navigation-->
+        <div class="navbar-wrapper d-md-flex justify-content-md-center">
+          <nav
+            class="navbar navbar-light flex-row flex-md-column justify-content-center justify-content-md-start"
+            role="navigation"
+          >
+            <a class="navbar-brand mx-auto pt-0 pt-md-3" href="{{ url_for('main.index') }}">CV-DEMO</a>
+            <hr class="d-none d-md-block w-100" />
+            <div class="navbar-nav-scroll">
+              <ul
+                class="navbar-nav flex-row flex-md-column align-items-center align-items-md-start justify-content-between"
+              >
+                {% for t in g.topics %}
+                  <li class="nav-item col col-md-auto mr-3 px-0 mr-md-0 text-center text-md-left" data-mode="{{ t.id }}">
+                    <a class="nav-link" href="{{ url_for(t.id + '.index') }}">{{ t.name }}</a>
+                 </li>
+                {% endfor %}
+                <li class="nav-item col col-md-auto mr-3 px-0 mr-md-0 text-center text-md-left" data-mode="about">
+                  <a class="nav-link" href="{{ url_for('main.about') }}">{{ _('About') }}</a>
                 </li>
-            </ul>
+              </ul>
+            </div>
+
+            <!-- Left side nav section for addition information or links in child pages-->
+            <!-- Activating when necessary. Disabled in mobile for now-->
+            <div class="left-description {% if not mode in(g.work_modes) %}hidden{% endif %}">
+              <hr class="d-none d-md-block w-100" />
+              <ul
+                class="navbar-nav flex-row flex-md-column align-items-center align-items-md-start justify-content-between"
+              >
+                <li class="nav-item col col-md-auto mr-3 px-0 mr-md-0 text-center">
+                  <a class="help-link nav-link" href="#ModeModalDescription">{{ _('Help on this topic') }}</a>
+                </li>
+              </ul>
+            </div>
+              <!-- //Left side section for addition information or links in child pages-->
+          </nav>
         </div>
-    </nav>
-    <!--/Top Navbar -->
+        <!-- //Main navigation-->
+        <main class="col border-left border-right mb-3 pt-0 pt-md-3">
+          {% block content %} {% endblock %}
+        </main>
 
-    <!--  MAIN  CONTAINER-->
-    <div class="container-fluid flex-column justify-content-between">
-      <div class="row">
-
-        <!-- Sidebar -->
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-          <div class="sidebar-sticky">
-            <ul class="nav flex-column"> <span style="font-family: 'Russo One', sans-serif; padding-left: 5px">{{ _('Powered by:') }}</span>
-              <li class="nav-item">
-                <a class="nav-link" href="https://www.python.org/" >
-                  <span> <img src="{{ url_for('static', filename='icons/python.png') }}"> </span>
-                  Python <span class="sr-only">(current)</span>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://flask.palletsprojects.com/en/1.1.x/">
-                  <span> <img src="{{ url_for('static', filename='icons/flask.png') }}"> </span>
-                  Flask
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://pytorch.org/">
-                  <span> <img src="{{ url_for('static', filename='icons/pytorch.png') }}"> </span>
-                  PyTorch
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://getbootstrap.com/">
-                  <span> <img src="{{ url_for('static', filename='icons/bootstrap.png') }}"> </span>
-                  Bootstrap
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://www.jetbrains.com/pycharm/">
-                  <span> <img src="{{ url_for('static', filename='icons/pycharm.png') }}"> </span>
-                  PyCharm
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://colab.research.google.com/">
-                  <span> <img src="{{ url_for('static', filename='icons/colab.png') }}"> </span>
-                  Google Colab
-                </a>
-              </li>
+        <!-- Right Sidebar -->
+        <div class="d-none d-xl-block navbar-light right-sidebar">
+          <div class="right-sidebar-content">
+            <ul class="navbar-nav flex-column">
+              <h5 class="pt-3 text-uppercase">{{ _('Powered by:') }}</h5>
+                {% for p in g.powered %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ p.href }}" target="_blank">
+                      <span> <img src="{{ url_for('static', filename=p.icon) }}" /> </span>
+                      {{ p.name }}
+                    </a>
+                  </li>
+                {% endfor %}
             </ul>
-
-
-              <!--
-            <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
-              <span>Saved reports</span>
-              <a class="d-flex align-items-center text-muted" href="#">
-                <span data-feather="plus-circle"></span>
-              </a>
-            </h6> -->
-
-            <ul class="nav flex-column mb-2"> <span style="font-family: 'Russo One', sans-serif; margin-top: 10px;padding-left: 5px">{{ _('Inspired by:') }}</span>
-              <li class="nav-item">
-                <a class="nav-link" href="http://cs231n.stanford.edu/">
-                  <span> <img src="{{ url_for('static', filename='icons/stanford.png') }}"> </span>
-                  Stanford CS231N
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link" href="https://ods.ai/">
-                  <span> <img src="{{ url_for('static', filename='icons/ods.png') }}"> </span>
-                  OpenDataScience
-                </a>
-              </li>
+            <hr class="w-100" />
+            <ul class="navbar-nav flex-column">
+              <h5 class="text-uppercase">{{ _('Inspired by:') }}</h5>
+                {% for p in g.inspired %}
+                  <li class="nav-item">
+                    <a class="nav-link" href="{{ p.href }}" target="_blank">
+                      <span> <img src="{{ url_for('static', filename=p.icon) }}" /> </span>
+                      {{ p.name }}
+                    </a>
+                  </li>
+                {% endfor %}
             </ul>
           </div>
-        </nav>
-        <!-- /Sidebar -->
-
-        <!-- Content container -->
-        <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4">
-        {# application content needs to be provided in the app_content block #}
-        {% block app_content %}{% endblock %}
-        </main>
-        <!-- /Content container -->
+        </div>
+        <!-- // Right Sidebar -->
       </div>
+      <!-- //Row -->
     </div>
-    <!--  MAIN CONTAINER -->
+    <!-- //Container -->
 
-<footer>
-  <div style="vertical-align: middle">mailto scientist74@gmail.com</div>
-</footer>
+    <footer class="main-footer">
+      {% block footer %}
+      <div
+        class="footer-container d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-md-between"
+      >
+        <div class="footer-title text-center text-md-left mb-3 mb-md-0">
+          &copy Tuuka 2019-2020
+        </div>
+        <div class="footer-content text-center text-md-right mb-3 mb-md-0">
+          <span><img src="../static/icons/gmail.svg" /></span>scientist74@gmail.com
+        </div>
+        <div class="footer-icons mb-3 mb-md-0">
+          <ul class="footer-icons-list text-center">
+<!--            <li>-->
+<!--              <a href="https://www.facebook.com/tuuka74"><img src="../static/icons/facebook.svg" /></a>#}-->
+<!--            </li>-->
+<!--            <li>-->
+<!--              <a href="www.linkedin.com/in/pavel-platonov"><img src="../static/icons/linkedin.svg" /></a>#}-->
+<!--            </li>-->
+            <li>
+              <a href="https://opendatascience.slack.com/team/UEAUN1HH6"><img src="../static/icons/slack.svg" /></a>
+            </li>
+            <li>
+              <a href="https://t.me/tuuka74"><img src="../static/icons/telegram.svg" /></a>
+            </li>
+            <li>
+              <a href="https://github.com/tuuka/cv-demo"><img src="../static/icons/github.svg" /></a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      {% endblock %}
+    </footer>
 
-{% endblock %}
-
-
-{% block scripts %}
-
-    <script>
-       var g_locale = "{{ g.locale }}";
-    </script>
+    {% block scripts %}
 
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="{{ url_for('static', filename='JS/jquery-3.4.1.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='JS/popper.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='JS/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/jquery-3.4.1.min.js') }}"></script>
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>-->
+    <script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 
-    <!-- Icons -->
-    <script src="{{ url_for('static', filename='JS/feather.min.js') }}"></script>
-    <script> feather.replace() </script>
 
-    <script src="{{ url_for('static', filename='JS/cv-script.js') }}"></script>
+    <script>
+      var lambda_url = '{{ g.lambda_url|safe }}';
+      var g_locale = '{{ g.locale }}';
+      var work_modes = {{ g.work_modes|list|safe }};
+      var mode = '{{ mode }}';
+      var file_too_big_alert =   '{{ _("File is too big. Images more than 2MB are not allowed") }}';
+      var only_image_allowed_alert = '{{ _("Only jpeg/jpg/png files are allowed!") }}';
+      var image_processing_in_progress_alert = '{{ _("Image processing in progress! Wait until operation is finished.") }}';
+      console.log(`locale=${g_locale}`);
+      {#console.log(`topics=${ {{ g.topics|tojson }} }`);#}
 
-{% endblock %}
 
-</body>
+      if ('serviceWorker' in navigator) {
+        //navigator.serviceWorker.getRegistration().then(function(r){r.unregister();});
+        navigator.serviceWorker.register('/sw.js').then(function (reg) {
+          //console.log('Service Worker Registered');
+          //reg.update();
+        });
+
+        navigator.serviceWorker.ready.then(function (reg) {
+        //console.log('Service Worker Ready');
+        });
+      }
+
+
+    </script>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    {% endblock %}
+  </body>
 </html>

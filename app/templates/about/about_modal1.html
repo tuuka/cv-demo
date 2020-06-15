@@ -1,0 +1,155 @@
+<p>
+  Описывая весь процесс создания проекта продробно, можно получить довольно увесистую книгу, что в мои планы пока никак
+  не входит. Много чего по основам flask можно подчеркнуть из прекраснейшей книги Мигуэля Гринберга
+  <a href="https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world">The Flask Mega-Tutorial</a>,
+  беглого прочтения которой уже будет вполне достаточно, чтобы понимать основные принципы построения flask-приложений. В
+  повествовании я не буду приводить <a href="https://github.com/tuuka/cv-demo">весь код</a>, а лишь буду акцентироваться
+  на моментах, которые оказались ключевыми или наиболее затратными по времени.
+</p>
+<p>
+  Для удобной (и правильной) организации проекта, необходимо заранее продумать структуру папок и файлов, входящих в
+  проект, чтобы потом не пришлось долго и мучительно рефакторить. Сразу отделим файлы запуска приложения, конфигурации,
+  различные вспомогательные файлы (типа requirements.txt, config.py и пр.) от самого приложения. Вышеописанные файлы
+  будут находиться непосредственно в папке проекта, в то время, как само приложение - в подпапке "app".
+</p>
+<p>
+  Основой веб-проекта будет домашняя страница и страницы трех основных разделов, каждый из которых, вполне возможно, в
+  будущем будет разростаться, дополняясь различными новыми функциями и опциями. Поэтому выносим эти разделы в отдельные
+  папки, с которыми потом будем работать через
+  <a href="https://flask-russian-docs.readthedocs.io/ru/latest/blueprints.html">Blueprint</a>-ы. В папке "app" создаем,
+  соответственно, подпапки "main", "image_recognition", "semantic_segmentation", "object_detection". Кроме этого,
+  необходима папка для шаблонов веб-страниц - "templates", а также папка "static" для хранения статических данных,
+  например, иконок, картинок, javascript-кода, css-стилей и прочего, используемого в приложении.
+</p>
+<p>
+  Файл cv-demo.py создаем в корневом каталоге проекта, он содержит простейший код, импортирующий приложение из
+  подкаталога <span>app</span> и осуществляющий его запуск:
+</p>
+<div class="code-spoiler"></div>
+<pre>
+    from app import application
+    if __name__ == '__main__':
+        application.run(host='0.0.0.0', port=5000, debug=False) </pre
+>
+<p>
+  Файл инициализации приложения <span>__init__.py</span> располагается в подкаталоге <span>app</span>. В этом файле
+  непосредстенно создавается инстанс Flask-приложения, а также регистрируются <span>Blueprint</span>-ы разделов.
+</p>
+<div class="code-spoiler"></div>
+<pre>
+    from flask import Flask
+    from config import Config
+
+    application = Flask(__name__)
+    application.config.from_object(Config)
+
+    from app.main import bp as main_bp
+    from app.image_recognition import bp as image_recognition_bp
+    from app.semantic_segmentation import bp as semantic_segmentation_bp
+    from app.object_detection import bp as object_detection_bp
+    application.register_blueprint(main_bp)
+    application.register_blueprint(image_recognition_bp)
+    application.register_blueprint(semantic_segmentation_bp)
+    application.register_blueprint(object_detection_bp) </pre
+>
+<p>
+  В каждом подкаталоге разделов (<span>main</span>,
+  <span>image_recognition</span> и т.д.) также создаем практически одинаковые файлы инициализации соответствующих
+  <span>Blueprint</span>-ов с разницей только в названиях самих блупринтов. Для домашней страницы файл
+  <span>cv-demo/app/main/__init__.py</span> выглядит следующим образом:
+</p>
+<div class="code-spoiler"></div>
+<pre>
+    from flask import Blueprint
+    bp = Blueprint('main', __name__)
+    from . import routes</pre
+>
+<p>
+  В каждом подкаталоге разделов создаем файлы
+  <span>routes.py</span>, которые в самом начале также будут выглядить практически одинаково. Здесь считаю нужным
+  обратить внимание на один нюанс, - в этом проекте я разместил контент сразу на двух языках - английском и русском.
+  Контент будет отображаться на языке, который является основным в ОС пользователя. Реализации этого процесса вполне
+  подробно описана в уже упомянутой мной книге Мигуэля Гринберга с применением расширения <span>flask_babel</span>,
+  поэтому углубляться здесь не буду. На текущем этапе же, чтобы потом не переделывать все шаблоны, любой текст
+  будет заключаться в конструкцию из фигурный скобок, нижнего подчеркивания, круглых скобок и ковычек, например так:
+  <span>_('текст')</span> в python-коде и <span>{</span><span>{</span><span> _('текст') </span> <span>}</span
+  ><span>}</span> в html. Ну и не забывать импортировать необходимую функцию в каждом файле, где мы используем текст,
+  который будет автоматически преобразован в другой текст на другом языке без переписывания самого кода и шаблонов.
+  Начальный вариант файла маршрутов главной страницы <span>cv-demo/app/main/routes.py</span> выглядит так:
+</p>
+<div class="code-spoiler"></div>
+<pre>
+    from flask import render_template
+    from app.main import bp
+    from flask_babel import _
+
+    @bp.route('/', methods=['GET'])
+    @bp.route('/index', methods=['GET'])
+    def index():
+        return render_template('index.html', title=_('Home'))</pre
+>
+
+<p>Файлы маршрутов других разделов практически идентичны.</p>
+<p>
+  Этот проект не о веб-дизайне, поэтому я не претендую на правильность и красоту html/css кода, который в первых
+  checkout-ах <a href="https://github.com/tuuka/cv-demo">репозитория</a> местами убогий и пугающий. В последствии, я его
+  практически полностью изменил с помощью шаблонизатора Jinja2, используемого во Flask-е.
+</p>
+<p>Итого, для начала, получилась примерно такая струкутура каталогов:<br /></p>
+<pre open visible>
+      CV-DEMO\
+        |   .gitignore
+        |   config.py
+        |   cv-demo.py
+        |   README.md
+        |
+        +---app
+        |   |   __init__.py
+        |   |
+        |   +---image_recognition
+        |   |      routes.py
+        |   |      __init__.py
+        |   |
+        |   +---main
+        |   |      routes.py
+        |   |      __init__.py
+        |   |
+        |   +---object_detection
+        |   |      routes.py
+        |   |      __init__.py
+        |   |
+        |   +---semantic_segmentation
+        |   |      routes.py
+        |   |      __init__.py
+        |   |
+        |   +---static
+        |   |   +---CSS
+        |   |   |       bootstrap.min.css
+        |   |   |       cv-style.css
+        |   |   |
+        |   |   \---JS
+        |   |           bootstrap.min.js
+        |   |           cv-script.js
+        |   |           jquery-3.4.1.min.js
+        |   |           popper.min.js
+        |   |
+        |   +---templates
+        |   |   |   about.html
+        |   |   |   base.html
+        |   |   |   index.html
+        |   |   |
+        |   |   +---image_recognition
+        |   |   |       index.html
+        |   |   |
+        |   |   +---object_detection
+        |   |   |       index.html
+        |   |   |
+        |   |   \---semantic_segmentation
+                        index.html </pre>
+<!--
+            <p style="color: blue; font-weight: bold">
+                Секрет неуклонного движения вперед в том, чтобы сделать первый шаг. Секрет первого шага в том,
+                чтобы разбить сложные, кажущиеся неодолимыми задачи на простые и осуществимые и начать с самой
+                первой. (М. Твен)
+            </p>
+            -->

@@ -1,0 +1,34 @@
+<p>
+  {{ _('ResNet101+DeepLab is another example of a network for semantic segmentation of images. It consists, like many
+  others, of two main modules: an encoder and a decoder (sometimes called a backbone and a classifier respectively). The
+  encoder of this model, as you can see from the its caption, is also well-known model for image recognition ') }}
+  <a href="https://arxiv.org/pdf/1512.03385.pdf">ResNet101</a>
+  {{ _(' with dilated convolution in some layers and without the last pooling and classification fully connected layers.
+  As a decoder, ') }}
+  <a href="https://arxiv.org/pdf/1706.05587.pdf">DeepLabV3</a>
+  {{ _(' from Google is used. The contribution of DeepLab is the introduction of atrous convolutions, or dilated
+  convolutions, to extract more dense features where information is better preserved given objects of varying scale. And
+  main feature in DeepLab decoder is so called "Atrous Spatial Pyramid Pooling" - a complicated module that consist of
+  one 1x1 conv module, three 3x3 conv modules with dilation rates 12, 24 and 36 and Adaptive Pooling module. Encoder
+  output is fed to all of these modules simultaneously. Then all these modules outputs are concatenated and passed
+  through several convolutional layers. Final 1x1 convolution layer is used to match number of channels to number of
+  classes.') }}
+</p>
+<p>
+  {{ _('During the training of this network, also auxiliary FCN classifiers can be used. ') }} {{ _(' In this case,
+  additional outputs from the intermediate layers of the encoder are fed to separate FCN classifiers. The loss function
+  in this case is the weighted sum of the losses of each of these classifiers and the final DeepLab head loss. ') }}
+</p>
+<p>
+  {{ _('Typically, the decoder outputs have a dimension less than that of the input image. Bilinear upsampling is used
+  to match the dimension of the output semantic mask with the size of the input image.') }}
+</p>
+<p>
+  {{ _('You can read more about DeepLab type models for semantic segmentation ') }}
+  <a href="https://towardsdatascience.com/review-deeplabv3-atrous-convolution-semantic-segmentation-6d818bfd1d74"
+    >{{ _('here') }}</a
+  >
+  {{ _('and') }}
+  <a href="https://towardsdatascience.com/deeplabv3-c5c749322ffa">{{ _('here') }}</a>
+  .
+</p>

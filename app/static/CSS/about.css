@@ -1,6 +1,11 @@
 .about-container {
-  font-family: "Roboto", sans-serif;
-  font-size: 100%;
+  font-family: 'Roboto', sans-serif;
+  /*font-size: 100%;*/
+}
+
+.about-container p:not(.text-muted) {
+  text-indent: 2.0em;
+  margin-bottom: 0.5em;
 }
 
 .timeline {
@@ -11,7 +16,7 @@
 }
 
 .timeline::before {
-  content: "";
+  content: '';
   position: absolute;
   left: 50%;
   top: 0;
@@ -30,7 +35,7 @@
 }
 
 .timeline-element::before {
-  content: "";
+  content: '';
   position: absolute;
   right: -8px;
   top: 1.35em;
@@ -56,7 +61,7 @@
 
 @media (max-width: 767.98px) {
   .timeline::before {
-    left: 8px;
+    left: 9px;
   }
 }
 
@@ -105,26 +110,14 @@
 
 .timeline_more {
   text-decoration: none;
-  color: #28a745;
+  color: #28a745 !important;
 }
 
-.timeline_more:hover {
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-.timeline_more .grey-text {
-  font-size: calc(6px + 0.5vw);
-}
-
-.modal-body {
-  font-size: 0.8em;
-}
-
-.modal-body p {
-  text-indent: 2em;
-  line-height: 1.4;
-  margin: 0.2em auto;
+@media (hover: hover) and (pointer: fine) {
+  .timeline_more:hover {
+    text-decoration: underline;
+    cursor: pointer;
+  }
 }
 
 .modal-body p span {
@@ -132,76 +125,66 @@
 }
 
 .modal-list {
-  /*line-height: 1.1;*/
-  font-style: italic;
+  /*font-style: italic;*/
   padding: 0;
   margin-left: 1.2em;
   margin-bottom: 0;
 }
 
 .modal-list li {
-  /*font-size: 0.8em;*/
   padding: 3px 0px;
 }
 
-.modal-list li p {
-  text-indent: 0;
-}
 
 .code-spoiler {
   display: inline-block;
   position: relative;
   border-bottom: 1px currentColor solid;
-  color: #007bff;
+  color: #28a745;
   line-height: 1;
-  margin: .6em 0em .6em 4em;
+  margin: 0 0 0.6em 2em;
   cursor: pointer;
-}
-.code-spoiler[open]{
-  color: #6f42c1;
-  margin: .6em 0em 0em 4em;
 }
 
 .code-spoiler::after {
-  content: "показать код";
+  content: 'код';
 }
 
 .code-spoiler::before {
-  content: "";
-  left: -.8em;
+  content: '';
+  left: -0.8em;
   top: 0.2em;
   position: absolute;
-  width: .5em;
-  height: .5em;
+  width: 0.5em;
+  height: 0.5em;
   border-top: 0.16em solid;
   transform: rotate(45deg);
   border-right: 0.16em solid;
 }
 
-.code-spoiler[open]:before {
+.code-spoiler.opened:before {
   transform: rotate(135deg) translate(-20%, 20%);
 }
 
+@media (hover: hover) and (pointer: fine) {
 .code-spoiler:hover {
-  color: #cc3515;
-  transition: color .5s;
+  color: darkgreen;
+  transition: color 0.3s;
+}}
+
+pre {
+  margin-bottom: 0.5em;
 }
 
-.modal-body pre {
+.code-spoiler + pre {
   display: none;
   border: 1px solid rgba(0, 0, 0, 0.3);
-  font-size: 1em;
-  margin: 0.5em 0;
-  opacity: 0;
+  opacity: 1;
+  /*transition: all 0.3s linear;*/
 }
 
-.modal-body pre[open] {
+.code-spoiler.opened+pre {
   display: block;
-}
-
-.modal-body pre[visible] {
-  opacity: 1 !important;
-  transition: all 0.5s linear;
 }
 
 .modal-title {

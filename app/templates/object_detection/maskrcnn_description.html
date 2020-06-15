@@ -1,0 +1,76 @@
+<p>
+  {{ _('MaskRCNN_ResNet50_FPN used here is a PyTorch torchvision zoo model for detecting objects and instance segmentation
+  built on the basis of another model - Faster RCNN that performs object detection task only. Faster RCNN consists of
+  two main parts: Backbone and FasterRCNN itself. The input image (after necessary transformations) is fed to the
+  backbone input, which produces a set of spatial features, which, in turn, are fed to the FasterRCNN input, where, in
+  fact, the detection of objects is carried out.') }}
+</p>
+<p>
+  {{ _('As the backbone (submodel for extracting feature maps from the input image), the well-known ') }}
+  <a href="https://arxiv.org/pdf/1512.03385.pdf">ResNet50</a>
+  {{ _(' with an "add-in" in the form of ') }}
+  <a href="https://arxiv.org/pdf/1612.03144.pdf">Feature Pyramid Network</a>
+  {{ _(' (FPN) is used here. You also can read more about FPN ') }}
+  <a
+    href="https://medium.com/@jonathan_hui/understanding-feature-pyramid-networks-for-object-detection-fpn-45b227b9106c"
+    >{{ _('here') }}</a
+  >. {{ _(' In short, we take feature maps from four "global" ResNet layers (Layer 1-4), convert to 256 (default)
+  channels, using a convolutional layer with a 1x1 kernel; add the upper layer interpolated to the size of the current
+  (starting from the penultimate layer) then we apply one more convolution with a 3x3 kernel and send the result to the
+  output. That is. For the four layers of ResNet50, we have 4 outputs and one more for Max Pooling:') }}
+</p>
+<ul>
+  <li>{{ 'Layer4 -> Conv1x1 -> Conv3x3 -> Out[3]' }}</li>
+  <li>{{ 'Layer3 -> Conv1x1+(Interpolate(Layer4 -> Conv1x1)) -> Conv3x3 -> Out[2]' }}</li>
+  <li>{{ 'Layer2 -> Conv1x1+(Interpolate(Layer3 -> Conv1x1)) -> Conv3x3 -> Out[1]' }}</li>
+  <li>{{ 'Layer1 -> Conv1x1+(Interpolate(Layer2 -> Conv1x1)) -> Conv3x3 -> Out[0]' }}</li>
+  <li>{{ 'Out[0] -> MaxPool2d -> Out[4]' }}</li>
+</ul>
+<p>
+  {{ _('In total, a list of spatial features of five different sizes is fed to the input of FasterRCNN. This approach
+  improves the accuracy of detection of small objects and increasing the overall accuracy of the model.') }}
+</p>
+<p>
+  {{ _('The second main module of the model is ') }}
+  <a href="https://arxiv.org/pdf/1506.01497.pdf">Faster R-CNN</a>
+  {{ _(' itself, which has a more complex structure with several modules and hyperparameters, which are described in
+  more detail ') }}
+    <a href="https://towardsdatascience.com/faster-r-cnn-for-object-detection-a-technical-summary-474c5b857b46">{{ _('here') }}</a>.
+</p>
+<p>
+  {{ _('So called ') }}
+  <a href="https://towardsdatascience.com/non-maximum-suppression-nms-93ce178e177c">Non-maximum Suppression (NMS)</a>
+  {{ _(' is used as a part of a proposals (anchor boxes that most likely have the object) filtering.') }}
+</p>
+<p>
+  {{ _('The original FasterRCNN uses RoIPool to extract features from feature maps in each Region Of Interest (RoI) and
+  bring them all to the same size (7x7 usually). The model we use here uses RoIAlign described in the original paper ') }}
+  <a href="https://arxiv.org/pdf/1703.06870.pdf">Mask-RCNN</a>. {{ _(' You can read more about both methods ') }}
+  <a
+    href="https://medium.com/@andrewjong/how-to-use-roi-pool-and-roi-align-in-your-neural-networks-pytorch-1-0-b43e3d22d073"
+    >{{ _('here') }}</a
+  >,
+  <a href="https://tjmachinelearning.com/lectures/1718/instance/instance.pdf">{{ _('here') }}</a>
+  {{ _('and ') }}
+  <a href="https://chao-ji.github.io/jekyll/update/2018/07/20/ROIAlign.html">{{ _('here') }}</a>.
+</p>
+<p>
+  {{ _('The torchvision implementation is quite complicated and confusing, but you can always look at it in detail in the ')
+  }}
+  <a href="https://github.com/pytorch/vision/blob/master/torchvision/models/detection/faster_rcnn.py"
+    >{{ _('source') }}</a
+  >.
+</p>
+<p>
+  {{ _('From FasterRCNN block we have bounding boxes for each known object instance in the image and labels of objects
+  in these bounding boxes. Also we have feature maps from the backbone. MaskRCNN (as well as FasterRCNN from above) has
+  RoIAlign submodule, Head-module and Predictor module. RoIAlign module is almost the same as FasterRCNN has (described
+  upper) with only difference in output feature size. This submodule takes features maps from a backbone and bounding
+  boxes from FasterRCNN and outputs "mask_features" of the same size for each bounding box. Head-module (which is a
+  four-layers fully conolutional network with 3x3 kernel and ReLU activation) takes this pooled features as input.
+  Predictor (one transposed convolution layer with 2x2 kernel and stride 2 and one convolution layer with 1x1 kernel)
+  takes Head outputs and "convert" them to class probabilities for each known object class. And again you can look at it
+  all with your own eyes in the ') }}
+  <a href="https://github.com/pytorch/vision/blob/master/torchvision/models/detection/mask_rcnn.py">{{ _('source') }}</a
+  >.
+</p>

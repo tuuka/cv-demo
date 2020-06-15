@@ -73,21 +73,21 @@ class NumpyTransforms():
 
 models_dict = {
     # recognition
-    "mobilenet_v2800": ('mobilenetv2_onnx_v11_800x800.onnx', 0),
-    "resnet34800": ('resnet34_onnx_v11_800x800.onnx', 0),
-    "resnet101800": ('resnet101_onnx_v11_800x800.onnx', 0),
-    "mobilenet_v2224": ('mobilenetv2_onnx_v11_224x224.onnx', 0),
-    "resnet34224": ('resnet34_onnx_v11_224x224.onnx', 0),
-    "resnet101224": ('resnet101_onnx_v11_224x224.onnx', 0),
+    "mobilenetv2_800": ('mobilenetv2_onnx_v11_800x800.onnx', 0),
+    "resnet34_800": ('resnet34_onnx_v11_800x800.onnx', 0),
+    "resnet101_800": ('resnet101_onnx_v11_800x800.onnx', 0),
+    "mobilenetv2_224": ('mobilenetv2_onnx_v11_224x224.onnx', 0),
+    "resnet34_224": ('resnet34_onnx_v11_224x224.onnx', 0),
+    "resnet101_224": ('resnet101_onnx_v11_224x224.onnx', 0),
 
-    #segmentation
-    "resnet101_fcn_coco20600": ('FCNResnet101_onnx_v11_600x600.onnx', 1),
-    "resnet101_deeplab_coco20600": ('DeepLab3Resnet101_onnx_v11_600x600.onnx', 1),
+    # segmentation
+    "resnet101_fcn_coco20_600": ('FCNResnet101_onnx_v11_600x600.onnx', 1),
+    "resnet101_deeplab_coco20_600": ('DeepLab3Resnet101_onnx_v11_600x600.onnx', 1),
 
-    #detection
-    "fasterrcnn1024": ('fasterRCNN_onnx_v11_1024x1024.onnx', 2),
-    "fasterrcnn800": ('fasterRCNN_onnx_v11_800x800.onnx', 2),
-    "maskrcnn_resnet50_fpn_coco800": ('maskrcnn_onnx_v11_800x800.onnx', 2),
+    # detection
+    "fasterrcnn_1024": ('fasterRCNN_onnx_v11_1024x1024.onnx', 2),
+    "fasterrcnn_800": ('fasterRCNN_onnx_v11_800x800.onnx', 2),
+    "maskrcnn_resnet50_fpn_coco_800": ('maskrcnn_onnx_v11_800x800.onnx', 2),
 }
 
 
@@ -96,6 +96,7 @@ def hex_colours(col):
         return max(0, min(x, 255))
 
     return "#{0:02x}{1:02x}{2:02x}".format(clamp(col[0]), clamp(col[1]), clamp(col[2]))
+
 
 # from https://github.com/matterport/Mask_RCNN/blob/master/mrcnn/visualize.py
 def random_colors(N, bright=True):
@@ -115,16 +116,20 @@ def convert_resize_outputs_segm(out, labels, img_size, image_orig_size, N=10):
     # take only one first image and cropping prediction to image size without padding
     out = out[0, :, :img_size[0], :img_size[1]]
     img_seg = np.argmax(out, 0)
+    # take sorted unique elements
     classes_in_image, counts = np.unique(img_seg, return_counts=True)
     # take topN classes only
     classes_in_image = classes_in_image[:N]
     colors = random_colors(len(classes_in_image))
+    # print(f'N={N}; len(classes)={len(classes_in_image)}; len(colors)={len(colors)}')
     r = np.zeros_like(img_seg, dtype=np.uint8)
     g = np.zeros_like(img_seg, dtype=np.uint8)
     b = np.zeros_like(img_seg, dtype=np.uint8)
+    out_labels = []
     for i, c in enumerate(classes_in_image):
         mask = img_seg == c
         if labels[c] == 'background': colors[i] = '#000000'
+        out_labels.append(labels[c])
         r[mask], g[mask], b[mask] = tuple(int(colors[i][j:j + 2], 16)
                                           for j in (1, 3, 5))
     img_seg = np.concatenate([r[None], g[None], b[None]], 0)
@@ -132,10 +137,16 @@ def convert_resize_outputs_segm(out, labels, img_size, image_orig_size, N=10):
     buffered = BytesIO()
     img_seg.save(buffered, format="JPEG")
     img_seg = base64.b64encode(buffered.getvalue()).decode("utf-8")
+
+    '''out_labels = [labels[cl] for cl in classes_in_image]
+    colors = [colors[i] if labels[i] != 'background' else '#000000' for i in range(len(classes_in_image))]
+    '''
+    '''
     classes_in_image = [(labels[cl], c) if labels[cl] != 'background'
                         else (labels[cl], '#000000')
                         for cl, c in zip(classes_in_image, colors)]
-    return img_seg, classes_in_image
+    '''
+    return img_seg, out_labels, colors
 
 
 def convert_resize_outputs_detect(boxes, labels, scores, masks, img_size, image_orig_size, N):
@@ -173,37 +184,47 @@ def convert_resize_outputs_detect(boxes, labels, scores, masks, img_size, image_
 
 
 def lambda_handler(event, context):
+    # using this in API proxy mode only (disabled for now)
+    def response_dict(data):
+        return {
+            'statusCode': 200,
+            'headers': {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Headers": "Content-Type",
+                "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+            },
+            'body': json.dumps(data)
+        }
+
     status = "OK"
     data = None
 
     if True:  # event['httpMethod'] == 'POST':
 
         timings = None
-        array = event.get('data', None)
+        img = event.get('data', None)
         size = event.get("size", None)
         model = event.get("model", None)
         score_threshold = event.get("threshold", 0.75)
         labels = event.get("labels", None)
         topN = event.get("topN", 10)
 
-        if (array is not None) and \
-                (size is not None) and \
-                (model is not None):
+        if img and size and model:
 
             start_time = time.time()
 
-            img = Image.open(BytesIO(base64.b64decode(array))).convert('RGB')
+            img = Image.open(BytesIO(base64.b64decode(img[img.find(',') + 1:]))).convert('RGB')
+            # img = Image.open(BytesIO(base64.b64decode(array))).convert('RGB')
             image_orig_size = img.size
 
-            model_key = f'{model}{size}'.lower()
+            model_key = f'{model}_{size}'.lower()
             model_file = models_dict[model_key][0]
             model_mode = models_dict[model_key][1]
             transform = NumpyTransforms(image_size=size)
-            inp, img_size = transform(img, normalize=model_mode!=2)
+            inp, img_size = transform(img, normalize=model_mode != 2)
             transform_input_time = round(time.time() - start_time, 2)
 
             # loading model
-
             t = time.time()
             if not os.path.exists(f'/tmp/{model_file}'):
                 s3 = boto3.resource('s3')
@@ -211,17 +232,18 @@ def lambda_handler(event, context):
                                                        f'/tmp/{model_file}')
             model_load_time = round(time.time() - t, 2)
 
+            # onnx session creation
             t = time.time()
             ort_session = ort.InferenceSession(f'/tmp/{model_file}')
             session_creation_time = round(time.time() - t, 2)
 
-            # deleting loaded file to avoid /tmp dir overloaded (it has only 500MB)
+            # deleting loaded file to avoid /tmp dir overload (it has only 500MB)
             try:
                 os.remove(f'/tmp/{model_file}')
             except:
                 pass
 
-            if model_mode == 0: # recognition mode
+            if model_mode == 0:  # recognition mode
                 t = time.time()
                 # onnx model`s out is a list. Taking first element
                 # and taking first image because only one image in the batch is considered for now
@@ -233,16 +255,23 @@ def lambda_handler(event, context):
                 out = out / out.sum()
                 # taking topN probabilities
                 predicted_idx = np.argsort(out)[-topN:][::-1]
-                predicted_scores = out[predicted_idx]
+                # predicted_scores = out[predicted_idx]
 
-                data = json.dumps({'predicted_idx': predicted_idx.tolist(),
-                                   'predicted_scores': predicted_scores.tolist(),
-                                   'img_size': img_size,
-                                   'image_orig_size': image_orig_size
-                                   })
+                if len(labels) != out.shape[0]:
+                    return {
+                        "status": 'Number of classes is not equal to number of labels given!',
+                        "data": None,
+                        "event": event,
+                        "time": None
+                    }
 
-                all_time = round(time.time() - start_time, 2)
-            elif model_mode == 1: # Segmentation
+                predicted_boxes = None
+                predicted_scores = [str(round(100 * s)) for s in out[predicted_idx]]
+                predicted_labels = [labels[i] for i in predicted_idx]
+                predicted_colors = ['#008000', '#1e90ff', '#ffff00', '#d2691e', '#ff0000']
+                predicted_mask = None
+
+            elif model_mode == 1:  # Segmentation
                 t = time.time()
                 if len(ort_session.get_outputs()) > 1:
                     out = ort_session.run(None, {'image_input': inp})[0]
@@ -255,45 +284,41 @@ def lambda_handler(event, context):
                         "data": None,
                         "time": None
                     }
-                img_seg, classes_in_image = convert_resize_outputs_segm(
+                img_seg, predicted_labels, predicted_colors = convert_resize_outputs_segm(
                     out, labels, img_size, image_orig_size, topN)
 
-                data = json.dumps({'img_seg': img_seg,
-                                   'classes': classes_in_image,
-                                   'img_size': img_size,
-                                   'image_orig_size': image_orig_size
-                                   })
+                predicted_boxes = None
+                predicted_scores = None
+                predicted_mask = 'data:image/jpeg;base64,' + img_seg
 
-                all_time = round(time.time() - start_time, 2)
             elif model_mode == 2:  # Detection
                 t = time.time()
                 if len(ort_session.get_outputs()) == 3:
-                    boxes, labels, scores = ort_session.run(None, {'image_input': inp})
+                    boxes, out_labels, scores = ort_session.run(None, {'image_input': inp})
                     masks = None
                 else:
-                    boxes, labels, scores, masks = ort_session.run(None, {'image_input': inp})
+                    boxes, out_labels, scores, masks = ort_session.run(None, {'image_input': inp})
+
                 model_prediction_time = round(time.time() - t, 2)
                 N = len(scores[scores > score_threshold])
-                boxes, labels, scores, masks, colors = convert_resize_outputs_detect(
-                    boxes, labels, scores, masks, img_size, image_orig_size, N)
+                predicted_boxes, predicted_labels, scores, \
+                masks, predicted_colors = convert_resize_outputs_detect(
+                    boxes, out_labels, scores,
+                    masks, img_size, image_orig_size, N
+                )
 
-                data = json.dumps({'boxes': boxes,
-                                   'labels': labels.tolist(),
-                                   'scores': scores.tolist(),
-                                   'masks': masks,
-                                   'colors': colors,
-                                   'img_size': img_size,
-                                   'image_orig_size': image_orig_size
-                                   })
+                predicted_scores = scores.tolist()
+                predicted_labels = [labels[i] for i in predicted_labels]
+                predicted_mask = 'data:image/jpeg;base64,' + masks
 
-                all_time = round(time.time() - start_time, 2)
-            else: # Mode is unknown!
+            else:  # Mode is unknown!
                 return {
                     "status": 'Model mode was not recognized!',
                     "data": None,
-                    "time": None
+                    "time": None,
                 }
 
+            all_time = round(time.time() - start_time, 2)
             timings = {
                 "all_time": all_time,
                 "transform_input_time": transform_input_time,
@@ -301,11 +326,20 @@ def lambda_handler(event, context):
                 "session_creation_time": session_creation_time,
                 "model_prediction_time": model_prediction_time,
             }
+
+            data = json.dumps({'boxes': predicted_boxes,
+                               'scores': predicted_scores,
+                               'labels': predicted_labels,
+                               'colors': predicted_colors,
+                               'masks': predicted_mask,
+                               'img_size': img_size,
+                               'image_orig_size': image_orig_size,
+                               'time': timings})
+
         else:
             status = "No input image or size&model parameters!"
 
     return {
         "status": status,
         "data": data,
-        "time": timings
     }

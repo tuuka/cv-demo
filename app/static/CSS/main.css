@@ -1,0 +1,162 @@
+* {
+  margin-block-start: 0;
+  margin-block-end: 0;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+  padding-block-start: 0;
+  padding-block-end: 0;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
+}
+
+body {
+  background-color: #b9bbbe;
+  font-family: 'Roboto', sans-serif;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.main-container {
+  max-width: 64rem;
+  margin-left: auto;
+  margin-right: auto;
+  min-height: 90vh;
+}
+
+.main-container p {
+  text-indent: 1.5em;
+}
+
+.navbar-wrapper {
+  max-width: 100%;
+}
+
+.navbar-wrapper nav{
+  width: inherit;
+}
+
+.navbar-nav h5 {
+  font-weight: 600;
+}
+
+.navbar-nav-scroll {
+  overflow: auto;
+}
+
+.navbar-brand {
+  font-weight: 800;
+}
+.navbar-brand:before {
+  display: inline-block;
+  content: url(./../icons/home.svg);
+  padding-right: 0.2em;
+  width: 1em;
+  height: 1em;
+}
+
+.nav-link {
+  font-family: 'Oswald';
+}
+
+.nav-link span {
+  display: inline-block;
+  height: 1.5em;
+  width: 1em;
+  margin-right: 0.5em;
+}
+
+.nav-link span img,
+.nav-link span svg {
+  /*fill: #007bff;*/
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  vertical-align: text-bottom;
+}
+
+.right-sidebar-content {
+  width: inherit;
+  padding-left: 1em;
+  padding-right: 1em;
+}
+
+.main-footer {
+  display: flex;
+  min-height: 6vh;
+  font-family: cursive;
+  /*font-family: "Lobster", cursive;*/
+  font-size: 1.2em;
+  font-weight: 500;
+  text-shadow: 2px 2px 1px rgba(200, 200, 200, 0.5);
+  background: linear-gradient(to bottom, #b9bbbe, #555 100%);
+  /*background-color: rgba(100, 100, 100, 0.4);*/
+}
+
+.footer-container {
+  width: 100%;
+  padding-left: 1.5em;
+  padding-right: 1.5em;
+}
+
+.footer-content span {
+  display: inline-block;
+  height: 1.2em;
+  width: 1.2em;
+  margin-right: 0.5em;
+}
+
+.footer-icons-list {
+  margin-bottom: 0;
+  text-align: center;
+}
+
+.footer-icons-list li {
+  display: inline-block;
+  margin-right: 0.7em;
+}
+
+.footer-icons-list li:nth-last-child(0) {
+  margin-right: 0;
+}
+
+.footer-icons-list li img {
+  height: 1.5em;
+}
+
+@media (max-width: 320px) {
+  main {
+    font-size: 12px;
+  }
+}
+
+@media (min-width: 321px) {
+    main {
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 576px) {
+  main {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .navbar-wrapper,
+  .right-sidebar {
+    width: 13.5em;
+  }
+  .navbar-wrapper .navbar,
+  .right-sidebar-content {
+    position: fixed;
+  }
+  .right-sidebar {
+    right: 0;
+  }
+  .navbar {
+    align-items: normal;
+  }
+}
+

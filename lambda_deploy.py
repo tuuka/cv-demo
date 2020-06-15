@@ -367,7 +367,7 @@ def create_rest_api(api_name, lambda_name, region='us-west-2'):
     """
 
     # Specify child resource name under root and stage name
-    child_resource_name = 'example'
+    child_resource_name = 'predict'
     stage_name = 'prod'
 
     # Create initial REST API
@@ -394,7 +394,7 @@ def create_rest_api(api_name, lambda_name, region='us-west-2'):
         logging.error('Could not retrieve the ID of the API\'s root resource.')
         return None
 
-    # Define a child resource called /example under the root resource
+    # Define a child resource called /child_resource_name under the root resource
     try:
         result = api_client.create_resource(restApiId=api_id,
                                             parentId=root_id,
@@ -404,29 +404,30 @@ def create_rest_api(api_name, lambda_name, region='us-west-2'):
         return None
     example_id = result['id']
 
-    # Define an ANY method on the /example resource
+    # Define method POST on the /child_resource_name resource
     try:
         api_client.put_method(restApiId=api_id,
                               resourceId=example_id,
-                              httpMethod='ANY',
+                              httpMethod='POST',
                               authorizationType='NONE')
     except ClientError as e:
         logging.error(e)
         return None
 
-    # Set the content-type of the API's ANY method response to JSON
-    content_type = {'application/json': 'Empty'}
+    # Set the content-type to JSON and CORS parameters of the API's POST method response
+    responseParameters = {'method.response.header.Access-Control-Allow-Origin': False}
     try:
         api_client.put_method_response(restApiId=api_id,
                                        resourceId=example_id,
-                                       httpMethod='ANY',
+                                       httpMethod='POST',
                                        statusCode='200',
-                                       responseModels=content_type)
+                                       responseParameters=responseParameters,
+                                       responseModels={'application/json': 'Empty'})
     except ClientError as e:
         logging.error(e)
         return None
 
-    # Set the Lambda function as the destination for the ANY method
+    # Set the Lambda function as the destination for the POST method
     # Extract the Lambda region and AWS account ID from the Lambda ARN
     # ARN format="arn:aws:lambda:REGION:ACCOUNT_ID:function:FUNCTION_NAME"
     lambda_arn = get_lambda_arn(lambda_name, region=region)
@@ -437,11 +438,11 @@ def create_rest_api(api_name, lambda_name, region='us-west-2'):
     account_id = sections[4]
     # Construct the Lambda function's URI
     lambda_uri = f'arn:aws:apigateway:{region}:lambda:path/2015-03-31/' \
-        f'functions/{lambda_arn}/invocations'
+                 f'functions/{lambda_arn}/invocations'
     try:
         api_client.put_integration(restApiId=api_id,
                                    resourceId=example_id,
-                                   httpMethod='ANY',
+                                   httpMethod='POST',
                                    type='AWS',
                                    integrationHttpMethod='POST',
                                    uri=lambda_uri)
@@ -449,14 +450,73 @@ def create_rest_api(api_name, lambda_name, region='us-west-2'):
         logging.error(e)
         return None
 
-    # Set the content-type of the Lambda function to JSON
-    content_type = {'application/json': ''}
+    # Set the content-type and CORS parameters of the Lambda function for POST method
+    responseParameters = {'method.response.header.Access-Control-Allow-Origin': '\'*\''}
     try:
         api_client.put_integration_response(restApiId=api_id,
                                             resourceId=example_id,
-                                            httpMethod='ANY',
+                                            httpMethod='POST',
                                             statusCode='200',
-                                            responseTemplates=content_type)
+                                            responseParameters=responseParameters,
+                                            responseTemplates={'application/json': ''})
+    except ClientError as e:
+        logging.error(e)
+        return None
+
+    # Define method OPTIONS on the /child_resource_name resource (for CORS)
+    try:
+        api_client.put_method(restApiId=api_id,
+                              resourceId=example_id,
+                              httpMethod='OPTIONS',
+                              authorizationType='NONE')
+    except ClientError as e:
+        logging.error(e)
+        return None
+
+    # Set the content-type to JSON and CORS parameters of the
+    # API's OPTIONS method response
+    responseParameters = {
+        'method.response.header.Access-Control-Allow-Headers': True,
+        'method.response.header.Access-Control-Allow-Methods': True,
+        'method.response.header.Access-Control-Allow-Origin': True
+    }
+    try:
+        api_client.put_method_response(restApiId=api_id,
+                                       resourceId=example_id,
+                                       httpMethod='OPTIONS',
+                                       statusCode='200',
+                                       responseParameters=responseParameters,
+                                       responseModels={'application/json': 'Empty'})
+    except ClientError as e:
+        logging.error(e)
+        return None
+
+    # Set the MOCK destination for the OPTION method
+    try:
+        api_client.put_integration(restApiId=api_id,
+                                   resourceId=example_id,
+                                   httpMethod='OPTIONS',
+                                   type='MOCK',
+                                   # integrationHttpMethod='OPTIONS',
+                                   requestTemplates={
+                                       'application/json': '{"statusCode": 200}'
+                                   })
+    except ClientError as e:
+        logging.error(e)
+        return None
+
+    # Set the content-type and CORS parameters for OPTIONS method
+    responseParameters = {
+        'method.response.header.Access-Control-Allow-Headers': '\'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token\'',
+        'method.response.header.Access-Control-Allow-Methods': '\'OPTIONS,POST\'',
+        'method.response.header.Access-Control-Allow-Origin': '\'*\''}
+    try:
+        api_client.put_integration_response(restApiId=api_id,
+                                            resourceId=example_id,
+                                            httpMethod='OPTIONS',
+                                            statusCode='200',
+                                            responseParameters=responseParameters,
+                                            responseTemplates={'application/json': '{"statusCode": 200}'})
     except ClientError as e:
         logging.error(e)
         return None

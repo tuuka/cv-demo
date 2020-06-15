@@ -14,16 +14,21 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY', 'you-will-never-guess')
     PORT = 5000
     LANGUAGES = ['ru', 'en']
-    TRANSLATOR_KEY = os.environ.get('YANDEX_TRANSLATOR_KEY')
+    SEND_FILE_MAX_AGE_DEFAULT = 300
     DEBUG = str2bool(os.environ.get('DEBUG', False))
     DETECTION_SCORE_THRESHOLD = float(os.environ.get('DETECTION_SCORE_THRESHOLD', 0.7))
     USE_GPU = str2bool(os.environ.get('USING_GPU', False))
     BOTO3_SERVICES = ['S3', 's3', 'lambda']
     BOTO3_REGION = 'us-west-2'
-    ONNX_IMAGE_SIZE = int(os.environ.get('ONNX_IMAGE_SIZE', 800))
+
+    # Call lambda function local from python file (not from aws)
     LAMBDA_LOCAL = str2bool(os.environ.get('LAMBDA_LOCAL', False))
+
+    # Call lambda from client JS request (not from /predict route)
+    LAMBDA_FROM_JS = str2bool(os.environ.get('LAMBDA_FROM_JS', True))
+
+    # lambda aws url
     LAMBDA_URL = os.environ.get('LAMBDA_URL', None)
-    CACHE_TYPE = 'filesystem'
-    CACHE_DEFAULT_TIMEOUT = int(os.environ.get('CACHE_DEFAULT_TIMEOUT', 300))
-    CACHE_DIR = '/tmp/'
-    CACHE_THRESHOLD = int(os.environ.get('CACHE_THRESHOLD', 20))
+
+
+

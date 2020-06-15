@@ -1,0 +1,155 @@
+{% extends "base.html" %} {% block head %} {{ super() }}
+{% endblock %} {% block content %}
+
+<div class="main-container">
+
+    <!-- Modal page description -->
+    {# Help link from main menu is linking here on ID, so in JS we will use this ID too#}
+    <div class="modal fade" id="ModeModalDescription" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ mode_description.title }}</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body text-justify">
+            {% include mode_description.desc_html %}
+            <p>
+              {{ _('You can upload your image with "Browse" button or paste the image from the clipboard as well as take a photo
+              from your camera (if you have one). You can also switch the models of neural networks using the tabs in the bottom.
+              The prediction results will change automatically after model return it.') }}
+            </p>
+            <p class="text-danger">
+              {{ _('Please note that this demo site is hosted not on a high-performance hardware, so it will take some time
+              to operate, be patient.') }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- /Modal page description -->
+
+    <!-- Preview and predict form -->
+    <div class="input-preview-form">
+{#      <div class="block-input hidden"></div>#}
+      <!-- Image preview and predicted image -->
+      <div class="preview"  data-responsive-font="16">
+        <!-- Blocking text -->
+        <div class="block-input hidden">
+          {# <span class="spinner-grow spinner-grow-lg" role="status" aria-hidden="true"></span>#}
+          <div class="block-input__text-blinking">{{ _('Please wait') }}</div>
+          <div class="block-input__sub-text">{{ _('operation takes some time') }}</div>
+        </div>
+        <!-- IMAGE -->
+        <img class="preview__image img-src" src="{{ mode_img }}" alt=""/>
+        <!-- SEGMENTED IMAGE -->
+        {% if mode in ['semantic_segmentation', 'object_detection'] %}
+          <img class="preview__image img-seg" src="" alt=""/>
+        {% endif %}
+        <!-- CANVAS -->
+        {% if mode in ['object_detection'] %}
+          <canvas class="preview__image img-canvas"></canvas>
+        {% endif %}
+        <!-- Prediction bars -->
+        <div class="prediction-bars hidden"></div>
+      </div>
+      <!-- //Image preview and predicted image -->
+
+      <!-- Input form -->
+      <form class="input-form" data-responsive-font="24" id="upload-file" method="post" enctype="multipart/form-data">
+        <div class="input-form__wrapper">
+          <label class="input-form__browse-button text-nowrap" for="input-file" id="inputFileLabel">
+            {{ _('Browse file') }}
+          </label>
+          <input type="file" class="hidden" id="input-file" name="file" accept="image/*" />
+          <input
+            type="url"
+            class="input-form__url-input"
+            id="input-url"
+            placeholder="{{ _('or paste image here') }}"
+          />
+          <label class="input-form__camera-button" for="camera-input" id="inputCameraLabel">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="feather feather-camera"
+            >
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+              <circle cx="12" cy="13" r="4"></circle>
+            </svg>
+          </label>
+          <input type="file" class="hidden" id="camera-input" accept="image/*" capture="camera" />
+        </div>
+      </form>
+      <!-- /Input form -->
+
+      <!-- Model change form -->
+      <div class="model-change-form" data-responsive-font="16">
+        <!-- Models tabs -->
+        <ul class="nav nav-tabs model-change-form__tabs-captions" role="tablist">
+          {% for m in models_list %}
+          <li class="nav-item">
+            <a
+              class="nav-link{% if m.active == 'true' %} active {% endif %}"
+              id="{{ m.id }}-tab"
+              data-target="#{{ m.data_target }}"
+              data-toggle="tab"
+              data-dataset="{{ m.dataset }}"
+              data-size="{{ m.img_size }}"
+              data-threshold="{% if m.threshold %}{{ m.threshold }}{% else %}null{% endif %}"
+              href="#{{ m.id }}"
+              role="tab"
+              aria-controls="{{ m.id }}"
+              aria-selected={{ m.active }}
+              >{{ m.name }}</a>
+          </li>
+          {% endfor %}
+        </ul>
+        <!-- /Models tabs -->
+        <!-- Models descriptions -->
+        <div class="tab-content model-change-form__tabs-contents">
+          {% for m in models_list %}
+          <div
+            class="tab-pane fade{% if m.active == 'true' %}show{% endif %}{% if m.active == 'true' %} active {% endif %}"
+            id="{{ m.id }}"
+            role="tabpanel"
+            aria-labelledby="{{ m.id }}-tab">
+            <div class="card">
+              <div class="card-header">
+                {{ m.card_header }}
+              </div>
+              <div class="card-body">
+                  {% include m.description %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <!-- /Models descriptions -->
+      </div>
+      <!-- /Model change form -->
+    </div>
+    <!-- /Preview and predict form -->
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+  {#var modelsList = {{ models_list|tojson }};#}
+  {#console.log(modelsList);#}
+  var labels = {{ labels|tojson }};
+  var topN = {{ topN }};
+</script>
+{% endblock %}

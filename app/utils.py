@@ -1,7 +1,20 @@
-import os
 import psutil
+import fnmatch
+import os
+import random
+from flask import url_for, current_app as app
 
-from flask import current_app as app
+
+def get_mode_img_filename(mode):
+    filename = random.choice([f for f in os.listdir(os.path.join(app.static_folder, 'images'))
+           if fnmatch.fnmatch(f, f'*{mode}*.jpg')])
+    return url_for('static', filename='images/' + filename)
+
+def get_text_from_babel_file(filename):
+    with open(os.path.join(app.static_folder, 'text', filename)) as f:
+        content = f.readlines()
+        content = [x.strip().strip("_('").strip("')") for x in content]
+    return content
 
 
 # from app import aws_boto
@@ -26,7 +39,6 @@ def print_lambda_timings(r=None):
         app.logger.info(f'Cannot extract time data from response. Error: {e}.')
 
 
-# AWS-Lambda invokation via boto3 extension (AWS Credential and other params needed)
 '''
 def invoke_lambda_function_synchronous(name, parameters, region_name='us-west-2'):
     """Invoke a Lambda function synchronously

@@ -1,0 +1,140 @@
+#mainPageCarousel {
+  font-family: 'Fira Sans Condensed', sans-serif;
+  border: 0.1rem solid;
+  margin-bottom: 1rem;
+}
+
+.carousel-inner img {
+  /*object-fit: cover;*/
+  max-height: 36rem;
+  width: 100%;
+}
+
+.carousel-caption-top {
+  font-weight: 800;
+  text-transform: uppercase;
+  text-align: center;
+  font-weight: 500;
+  color: white;
+  text-shadow: 1px 1px 1px #000000;
+  border-radius: 2em;
+  position: absolute;
+  top: 0;
+  opacity: 0;
+  background-color: rgba(173, 189, 255, 0.5);
+  -ms-background-color: rgba(173, 189, 255, 0.5);
+  animation: animate-carousel-caption-top 1s normal forwards ease;
+  animation-delay: 200ms;
+  z-index: 1;
+  width: 100%;
+}
+
+@keyframes animate-carousel-caption-top {
+  0% {
+    transform: translate(0, -2em);
+    opacity: 0;
+  }
+  100% {
+    /*font-size: 1.3em;*/
+    transform: translate(0, 0.8em);
+    opacity: 1;
+  }
+}
+
+.learn-more-btn {
+  text-decoration: none;
+  font-size: 0.8em;
+  /*display: block;*/
+  position: absolute;
+  background-color: rgba(173, 189, 255, 0.3);
+  padding: 0 0.2em;
+  bottom: 0;
+  left: 50%;
+  /*transform: translate(-50%, 0);*/
+  border-radius: 0.4em;
+  border: solid 0.03em;
+  color: white;
+  text-shadow: 0px 0px 2px black;
+  font-weight: 500;
+  animation: animate-learn-more-btn 1s normal forwards ease;
+  animation-delay: 1000ms;
+  opacity: 0;
+}
+
+@keyframes animate-learn-more-btn {
+  0% {
+    transform: translate(-50%, 2em);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -1.5em);
+    opacity: 1;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .learn-more-btn:hover {
+    color: white;
+    text-decoration: none;
+    background-color: rgba(173, 189, 255, 0.5);
+  }
+}
+
+.learn-more-btn:active {
+  outline: none;
+}
+
+.carousel-indicators {
+  font-size: 1.2em;
+  margin-bottom: 0.1em;
+}
+
+.carousel-indicators li {
+  box-sizing: border-box;
+  width: 0.5em;
+  height: 0.5em;
+  margin: 0 0.3em;
+  cursor: pointer;
+  border: 1px solid black;
+  border-radius: 50%;
+}
+
+.carousel-indicators li:hover {
+  border: 2px solid black;
+}
+
+@media (max-width: 320px) {
+}
+
+@media (min-width: 321px) {
+  .carousel-caption-top {
+    font-size: 1.5em;
+  }
+  .learn-more-btn,
+  .carousel-indicators {
+    font-size: 1.3em;
+  }
+}
+
+@media (min-width: 425px) {
+  .carousel-caption-top {
+    font-size: 2em;
+  }
+  .learn-more-btn,
+  .carousel-indicators {
+    font-size: 1.5em;
+  }
+}
+
+@media (min-width: 768px) {
+  .carousel-caption-top {
+    font-size: 2.5em;
+  }
+  .learn-more-btn,
+  .carousel-indicators {
+    font-size: 2em;
+  }
+}
+
+@media (min-width: 992px) {
+}

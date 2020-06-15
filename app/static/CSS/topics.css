@@ -1,0 +1,234 @@
+.input-preview-form {
+  position: relative;
+  max-width: 100%;
+  border-radius: 0.3em;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.block-input {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 100;
+  text-align: center;
+  font-family: Oswald;
+  line-height: 1;
+  text-shadow: 0 0 0.5em rgba(255, 225, 255, 0.7);
+}
+
+.block-input__text-blinking {
+  font-size: 3em;
+  margin-bottom: 0.1em;
+  font-weight: 600;
+  animation: blinker 1.2s cubic-bezier(0.5, 0, 1, 1) infinite alternate;
+}
+@keyframes blinker {
+  to {
+    opacity: 0;
+  }
+}
+
+.block-input__sub-text {
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+.preview {
+  height: 14em;
+  max-width: 100%;
+  position: relative;
+  border: 2px solid;
+  border-color: inherit;
+  border-radius: inherit;
+  margin-bottom: 0.5em;
+}
+
+.preview .block-input {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: inherit;
+}
+
+.preview__image {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: inherit;
+}
+
+.img-src {
+  z-index: 1;
+}
+
+.img-seg {
+  z-index: 2;
+  opacity: 0.3;
+}
+
+.img-canvas {
+  z-index: 3;
+  opacity: 1.0;
+}
+
+.input-form {
+  font-family: 'Oswald', sans-serif;
+  border-color: inherit;
+  border-radius: inherit;
+  margin-bottom: 0.5em;
+}
+
+.input-form__wrapper {
+  display: flex;
+  /*height: 2.0em;*/
+  font-size: 1.2em;
+  line-height: 1;
+  justify-content: space-between;
+  align-items: center;
+  border: 2px solid;
+  border-color: inherit;
+  border-radius: inherit;
+}
+
+.input-form__camera-button,
+.input-form__browse-button {
+  margin: 0.2em 0.4em;
+  padding: 0.2em 0.3em;
+  font-weight: 500;
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.5);
+  border-radius: 0.5em;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.2s;
+  box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.input-form__browse-button {
+  padding: 0.28em 0.3em;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .input-form__camera-button:hover,
+  .input-form__browse-button:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+  }
+}
+
+.input-form__camera-button:active,
+.input-form__browse-button:active {
+  /*background-color: rgba(255, 255, 255, 0.4);*/
+  cursor: pointer;
+  box-shadow: -1px -1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.input-form__camera-button svg {
+  width: 1.2em;
+  height: 1.2em;
+  vertical-align: text-bottom;
+}
+
+.input-form__url-input {
+  flex-grow: 1;
+  margin: 0.2em 0;
+  padding: 0 0.4em;
+  font-weight: 200;
+}
+
+.model-change-form__tabs-captions a {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .model-change-form__tabs-captions a:hover {
+    color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+.model-change-form__tabs-contents {
+  text-align: justify;
+}
+
+.model-change-form__tabs-contents ul {
+  margin-inline-start: 1.5em;
+  margin-bottom: 1em;
+}
+
+.model-change-form__tabs-contents .card-header {
+  /*font-weight: 700;*/
+}
+
+.prediction-bars {
+  position: absolute;
+  font-family: 'Oswald', sans-serif;
+  color: black;
+  /*text-shadow: 0 0 2px black;*/
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 0.5em;
+  padding: 0.3em;
+  top: 1em;
+  right: 1em;
+  font-size: 0.8em;
+  background-color: rgba(255, 255, 255, 0.5);
+  z-index: 10;
+}
+
+.pred-bar {
+  width: 0;
+  transition: all 0.6s ease;
+  white-space: nowrap;
+}
+
+.time-elem {
+  position:absolute;
+  font-family: 'Oswald', sans-serif;
+  font-size: 0.7em;
+  text-indent: 0 !important;
+  left: 0.5em;
+  bottom: 0.5em;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 0.5em;
+  padding: 0.3em;
+  margin: 0;
+  color: black;
+  background-color: rgba(255,255,255,0.5);
+  z-index: 100;
+}
+
+@media (max-width: 320px) {
+  .preview {
+    height: 14em;
+  }
+  .input-form__wrapper {
+    flex-wrap: wrap;
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 321px) {
+  .preview {
+    height: 16em;
+  }
+}
+
+@media (min-width: 425px) {
+  .preview {
+    height: 20em;
+  }
+}
+
+@media (min-width: 768px) {
+  .preview {
+    height: 24em;
+  }
+}
+
+@media (min-width: 992px) {
+  .preview {
+    height: 32em;
+  }
+}

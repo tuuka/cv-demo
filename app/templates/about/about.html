@@ -1,4 +1,6 @@
-{% extends "base.html" %} {% block app_content %}
+{% extends "base.html" %} {% block head %} {{ super() }}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about.css') }}" />
+{% endblock %} {% block content %}
 
 <div class="container-fluid pt-2 about-container">
   <div class="card border-dark">
@@ -8,110 +10,71 @@
       <section>
         <h3 class="font-weight-bold text-center dark-grey-text pb-2">
           {{ _('How it\'s made and who made it. ') }}
-          <span style="font-size: x-small;"
-            ><br />{{ _('(Only in russian for now)') }}</span
-          >
+          <span style="font-size: x-small;"><br />{{ _('(Only in russian for now)') }}</span>
         </h3>
         <hr class="w-header my-1" />
-        <p class="text-justify pt-2 px-3 mb-5"></p>
+        <p class="text-justify pt-2 px-3 mb-5">
+          Это небольшое веб-приложение было создано мной в качестве toy-project после того, как были пройдены
+          несколько курсов по машинному обучению. Основная цель проекта научиться на практике реализовывать функционал
+          готовых предобученных моделей искусственных нейронных сетей в реальном конкретном приложении, а также
+          развернуть это приложение в интернете. Ниже в условно хронологическом порядке приведен практичеки весь
+          процесс от идеи до реализации.
+        </p>
 
         <div class="row">
           <div class="col-lg-8 mx-auto">
             <ol class="timeline">
+              {% for t in about_topics %}
               <li class="timeline-element">
-                <h5 class="font-weight-bold dark-grey-text mb-1">Reserved</h5>
+                <h5 class="font-weight-bold dark-grey-text mb-1">{{ t.title }}</h5>
                 <p class="text-muted">
-                  Some text
-                  <span class="timeline_more" id="timeline1">Подробнее</span>
+                  {{ t.short|safe }}
+                  <span class="timeline_more" id="timeline{{ t.id }}">Подробнее.</span>
                 </p>
               </li>
-              <li class="timeline-element">
-                <h5 class="font-weight-bold dark-grey-text mb-1">Reserved</h5>
-                <p class="text-muted">
-                  Some text
-                  <span class="timeline_more" id="timeline2">Подробнее</span>
-                </p>
-              </li>
+              {% endfor %}
             </ol>
           </div>
         </div>
       </section>
-      <!-- //Section -->
+      <!-- Section -->
     </div>
-    <!-- //Timeline -->
+    <!-- End of Timeline -->
   </div>
 
   <!-- Modal pages -->
-  <!-- Modal 1 -->
-  <div
-    class="modal fade timeline-modal"
-    id="TimeLineModal1"
-    tabindex="-1"
-    role="dialog"
-  >
+  {% for t in about_topics %}
+  <div class="modal fade timeline-modal" id="TimeLineModal{{ t.id }}" tabindex="-1" role="dialog">
     <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <p class="modal-title">{{ _('Reserved') }}</p>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
+          <p class="modal-title">{{ t.title }}</p>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body text-justify">
-          Some text
+          {% set layoutfirst = './about/about_modal' %} {% set layoutlast = '.html' %} {% set layout = layoutfirst +
+          t.id + layoutlast %} {% include layout %}
         </div>
       </div>
     </div>
   </div>
-  <!-- /Modal 1 -->
-
-  <!-- Modal 2 -->
-  <div
-    class="modal fade timeline-modal"
-    id="TimeLineModal2"
-    tabindex="-1"
-    role="dialog"
-  >
-    <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <p class="modal-title">{{ _('Reserved') }}</p>
-          <button
-            type="button"
-            class="close"
-            data-dismiss="modal"
-            aria-label="Close"
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <div class="modal-body text-justify">
-          Some text
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- /Modal 2 -->
-
+  {% endfor %}
   <!-- /Modal pages -->
 </div>
 
+{% endblock %} {% block scripts %} {{ super() }}
 <script>
-  document.addEventListener("click", function (e) {
-    if (e.target.classList.contains("code-spoiler")) {
-      e.target.toggleAttribute("open");
-      let pre = e.target.nextElementSibling;
-      pre.toggleAttribute("open");
-      setTimeout(function () {
-        pre.toggleAttribute("visible");
-      }, 10);
-    }
+  // Timeline "more" click
+  $('.timeline_more').on('click', function (e) {
+    let i = e.target.id.split('timeline').pop();
+    $('#TimeLineModal' + String(i)).modal('show');
+  });
+
+  // Spoiler toggle
+  $('.code-spoiler').click(function () {
+    $(this).toggleClass('opened');
   });
 </script>
-
 {% endblock %}

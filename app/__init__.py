@@ -1,5 +1,5 @@
 from flask import Flask, request, current_app
-from flask_caching import Cache
+# from flask_caching import Cache
 from flask_babel import Babel
 from config import Config
 from app import cli
@@ -27,9 +27,9 @@ application.config.from_object(Config)
 
 babel = Babel(application)
 cli.register(application)
-#aws_boto = Boto3(application)
-cache = Cache()
-cache.init_app(application, config=application.config)
+# aws_boto = Boto3(application)
+# cache = Cache()
+# cache.init_app(application, config=application.config)
 
 from app.errors import bp as errors_bp
 from app.main import bp as main_bp

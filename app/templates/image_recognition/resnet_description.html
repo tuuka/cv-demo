@@ -1,0 +1,32 @@
+<p class="card-text">
+  {{ _('With the advent of such models of artificial neural networks as') }}
+  <a href="https://en.wikipedia.org/wiki/AlexNet">AlexNet</a>
+  {{_('and') }}
+  <a href="https://arxiv.org/pdf/1409.1556.pdf">VGG</a>
+  {{ _(', it became clear that the deeper the network (the more layers it has), the more accuracy you can get from it.
+  At the same time, the deeper the network, the harder to train it') }}
+  <a href="https://en.wikipedia.org/wiki/Vanishing_gradient_problem">(Vanishing gradient_problem)</a>.
+  {{ _('. As a method of dealing with this problem in 2015 a Microsoft research group presented a neural network with
+  residual connections named') }}
+  <a href="https://arxiv.org/pdf/1512.03385.pdf">ResNet</a>
+  {{ _('In this model the input of each block is directly connected to the output. This approach can significantly
+  reduce the effect of a gradient vanishing at learning and make it possible to increase the number of network layers,
+  thereby increasing accuracy.') }}
+</p>
+<p>
+  {{ _(' The ResNet family has several varieties in terms of the number of layers. The least deep model is Resnet18, the
+  most is ResNet152. All ResNet networks have an input convolutional layer with a 7x7 kernel, a max-pooling layer, then
+  4 "complex" layers, which include several ResNet blocks, this complex layers differ from each other in the number of
+  channels processed in the blocks included in them. This all is followed by average pooling layer and a fully connected
+  classification layer. In the Resnet18 and ResNet 34 networks, the "basic" ResNet block is used, that consist of two
+  convolutional layers with a 3x3 core. In Resnet50 and deeper networks, to reduce the required computation complexity,
+  a bottleneck block is used. The bottleneck block consist of three convolutional layers with 1x1, 3x3, 1x1 kernels
+  respectively . Batch normalization is used after all convolutional layers of the network and Relu is used as an
+  activation function.') }}
+</p>
+<p>
+  {{ _('More details can be found') }}
+  <a href="https://en.wikipedia.org/wiki/Residual_neural_network">{{ _('here') }}</a>
+  {{ _('and') }}
+  <a href="https://towardsdatascience.com/a-deeper-dive-into-residual-learning-d92e0aaa8b32">{{ _('here') }}</a>
+</p>

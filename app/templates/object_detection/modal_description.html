@@ -1,0 +1,46 @@
+<p>
+  <a href="https://en.wikipedia.org/wiki/Object_detection">{{ _('Object detection') }}</a>
+  {{ _(' is perhaps the most difficult task of computer vision, the essence of which is to detect known objects in the
+  image, determine which known classes these objects belong to, and also determine their location. In general, the
+  result of the work of a neural network that solves the problem of object detection is the bounding boxes around
+  various objects with class name labels. As a logical continuation of the image detection task, the Instance
+  segmentation task is considered - pixel-wise selection of objects in the image; moreover, unlike semantic
+  segmentation, different objects of the same class are distinguished.') }} {{ _('Of course, all modern methods for
+  solving problems of object detection (and instance segmentation) use the artificial neural networks, convolutional
+  neural networks in particular. ') }} {{ _('Various sources and articles describe in some detail the architectures of
+  various artificial neural networks models for detecting objects, starting with one of the very first ') }}
+  <a href="https://arxiv.org/pdf/1311.2524.pdf">R-CNN</a>,
+  {{ _(' which marked the beginning of a series of continuing improvements and enhancements, which resulted in the
+  appearance of such models, for example, as ') }}
+  <a href="https://arxiv.org/pdf/1504.08083.pdf">Fast R-CNN</a> {{ _(', ') }}
+  <a href="https://arxiv.org/pdf/1506.01497.pdf">Faster R-CNN</a> {{ _(', ') }}
+  <a href="https://arxiv.org/pdf/1506.02640.pdf">YOLO</a> {{ _(', ') }}
+  <a href="https://arxiv.org/pdf/1512.02325.pdf">SSD</a>
+  {{ _(' and others.') }}
+</p>
+<p>
+  {{ _('The basic principle of operation of region-based object detection models is to find out the so-called Regions Of
+  Interest (RoI), to recognize an object and a background in each of the regions, to make a linear regression of the
+  coordinates of these regions. The differences between the models are precisely in the ways of implementing the above.
+  In the article ') }}
+  <a
+    href="https://www.analyticsvidhya.com/blog/2018/10/a-step-by-step-introduction-to-the-basic-object-detection-algorithms-part-1/"
+    >{{ _('A Step-by-Step Introduction to the Basic Object Detection Algorithms') }}</a
+  >
+  {{ _(' you can read more about it.') }}
+</p>
+<p>
+  {{ _("Instance segmentation is a kind of a combination of the tasks of object detection and semantic segmentation.
+  After, using the models of object detection, the bounding boxes and labels of the classes of objects in them are
+  defined, a semantic analysis of each area of the image in these bounding boxes is performed. The most famous model of
+  an artificial neural network that solves this problem is ") }}
+  <a href="https://arxiv.org/pdf/1703.06870.pdf">Mask R-CNN</a>.
+</p>
+<p>
+  {{ _('The most commonly used dataset used to train image detection and instance segmentation models is ') }}
+  <a href="http://cocodataset.org/#home">{{ _('COCO 2017') }}</a>
+</p>
+<p>
+  {{ _('On this page there is an area for previewing the image, in this area predicted bounding boxes and labels will be
+  displayed, according to the used model`s prediction.') }}
+</p>

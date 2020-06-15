@@ -1,43 +1,48 @@
-from flask import render_template, jsonify, request
-from flask import current_app as app
-from app.semantic_segmentation import bp, utils
-from flask_babel import _
-import time
-from app.utils import print_memory
+from flask import render_template
+from app.semantic_segmentation import bp
+from flask_babel import _, lazy_gettext as _l
+from app.utils import get_mode_img_filename, get_text_from_babel_file
 
 
+mode = 'semantic_segmentation'
+mode_description = {'title': _l('Semantic segmentation'),
+                    'desc_html': f'{mode}/modal_description.html'}
+models_list = [
+   {'name': 'ResNetFCN',
+    'active': 'true',
+    'id':'resnet101_fcn_coco20',
+    'card_header': _l('Pretrained on the COCO Pascal VOC (20 classes) dataset.'),
+    'description': f'{mode}/resnetfcn_description.html',
+    'dataset': 'pascal',
+    'img_size': 600},
+   {'name': 'ResNetDeepLab',
+    'active': 'false',
+    'id':'resnet101_deeplab_coco20',
+    'card_header': _l('Pretrained on the COCO Pascal VOC (20 classes) dataset.'),
+    'description': f'{mode}/resnetdeeplab_description.html',
+    'dataset': 'pascal',
+    'img_size': 600},
+]
 
 @bp.route('/semantic_segmentation/', methods=['GET', 'POST'])
 @bp.route('/semantic_segmentation/index.html', methods=['GET', 'POST'])
 def index():
-    return render_template('semantic_segmentation/index.html', title=_('Semantic segmentation'))
+    pascal = get_text_from_babel_file('pascal_class_index.txt')
+    labels = {
+        'pascal': [_(l) for l in pascal],
+    }
+
+    return render_template('topics_index.html',
+                           title=_('Semantic segmentation'),
+                           mode=mode,
+                           mode_img=get_mode_img_filename(mode),
+                           models_list=models_list,
+                           mode_description=mode_description,
+                           labels=labels,
+                           topN=10
+                           )
 
 
-@bp.route('/semantic_segmentation/predict', methods=['POST'])
-def predict():
-    if request.method == 'POST':
-        if 'file' not in request.files:
-            return jsonify({'error':'No source img file'})
-        modelname = request.args.get('model', None)
-        print_memory()
-        file = request.files.get('file')
-        if not file:
-            return jsonify({'error':'Not correct source img file'})
 
-        t = time.time()
-        file = file.read()
 
-        try:
-            prediction = utils.get_prediction(modelname=modelname,
-                                                           image_bytes=file)
-        except Exception as e:
-            app.logger.error(f'Error in get_prediction: {e}.')
-            return jsonify({'error': f'Can not predict. Exception: {e}.'})
 
-        pred = {'error': '',
-                'prediction' : prediction
-                }
-        dt = time.time() - t
-        app.logger.info(f'Segmentation model prediction time: {dt:.02f} seconds')
-        pred['time'] = round(dt, 2)
-        return jsonify(pred)

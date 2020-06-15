@@ -1,0 +1,28 @@
+<p>
+  {{ _('ResNet101+FCN is one of the simplest networks for semantic segmentation of images. It consists, like many
+  others, of two main modules: an encoder and a decoder (sometimes called a backbone and a classifier respectively). The
+  encoder of this model is a well-known model for image recognition ') }}
+  <a href="https://arxiv.org/pdf/1512.03385.pdf">ResNet</a>
+  {{ _(' (here in the variation of 101 layers) with dilated convolution in some layers and without the last pooling and
+  classification fully connected layers. As a decoder, a fully convolutional network') }}
+  <a href="https://arxiv.org/pdf/1605.06211v1.pdf">FCN</a>
+  {{ _(' is used which consists of several (in this implementation one) 3x3 kernel convolutional layers with batch
+  normalization and relu activation, followed by a convolutional layer with a 1x1 kernel to match the number of channels
+  (feature maps) to the number of classification classes (labels).') }}
+</p>
+<p>
+  {{ _('During the model training, additional classifiers are sometimes used (in some sources this technique
+  is called ') }}
+  <a href="https://arxiv.org/pdf/1505.02496.pdf">Deep Supervision</a>).
+  {{ _('Additional outputs from the intermediate layers of the encoder are fed to separate FCN
+  classifiers. The loss function in this case is the weighted sum of the losses of each of these classifiers. ') }}
+</p>
+<p>
+  {{ _('Typically, the decoder outputs have a dimension less than that of the input image. To match the dimension of the
+  output semantic mask with the size of the input image so-called transposed convolution is used, but in many cases
+  simple bilinear upsampling is enough for these purposes.') }}
+</p>
+<p>
+  {{ _('You can read more about FCN type models for semantic segmentation ') }}
+  <a href="https://towardsdatascience.com/review-fcn-semantic-segmentation-eb8c9b50d2d1">{{ _('here') }}</a>.
+</p>

@@ -1,0 +1,44 @@
+<p>
+  <a href="https://arxiv.org/abs/1801.04381">MobileNetV2</a>
+  {{ _('(introduced by Google in 2018) is an improved version of MobileNetV1, introduced a year earlier. It has a small
+  size, low required computation power while maintaining acceptable accuracy. Thanks to these properties, this model can
+  be used on mobile devices, providing consistent speed and accuracy. MobileNetV2 is a convolutional neural network that
+  uses residual connections between blocks. The key features of the model are the following:') }}
+</p>
+<ul>
+  <li>
+    {{ _('the absence of the max pulling block between layers that is usual for convolution networks; instead,
+    convolution with step 2 is used;') }}
+  </li>
+  <li>
+    {{ _('regular convolutions replaced by “depthwise convolutions”, the essence of which is to use a separate
+    convolution filter for each input channel (feature map); number of output channels in this case is equal to number
+    of input channels;') }}
+  </li>
+  <li>
+    {{ _('the depthwise convolution is followed by a pointwise convolution. This really is the same as a regular
+    convolution but with a 1×1 kernel.') }}
+  </li>
+</ul>
+<p>
+  {{ _('A regular convolution does both filtering and combining in a single go, but with a depthwise separable
+  convolution these two operations are done as separate steps.') }}
+</p>
+<p>
+  {{ _('Main MobileNetV2 bulding block called "bottleneck" and consist of 1x1 "extension" pointwise convolution layer,
+  3x3 depthwise convolution layer and 1x1 "projection" pointwise convolution layer. The full MobileNet V2 architecture,
+  then, consists of 17 of these building blocks in a row. There are residual connections between these blocks. This is
+  followed by a regular 1×1 convolution, a global average pooling layer, and a fully connected classification layer. The
+  very first block is slightly different, it uses a regular 3×3 convolution with 32 channels instead of the expansion
+  layer. Some depthwise convolutions have a stride of 2 to reduce the dimension of feature maps, in this case no
+  residual connection is used in this layer. MobileNetV2 uses batch normalization after all layers and Relu6 as an
+  activation function. ') }}
+</p>
+<p>
+  {{ _('You can read more about this model') }}
+  <a href="https://machinethink.net/blog/mobilenet-v2/">{{ _('here') }}</a>
+  {{ _('and') }}
+  <a href="https://towardsdatascience.com/review-mobilenetv2-light-weight-model-image-classification-8febb490e61c"
+    >{{ _('here') }}</a
+  >.
+</p>

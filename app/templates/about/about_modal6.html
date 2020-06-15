@@ -1,0 +1,271 @@
+<p>
+  После <span>Heroku</span> и <span>Google App Engine</span>
+  <a href="https://aws.amazon.com/">Amazon Web Services</a> очень долгое время у меня вызывал подёргивание глаза.
+  Огромное количество частично дублирующих друг друга сервисов и невероятно неудобно (на мой взгляд) организованная
+  документация вынуждала после пары часов чтения одного и того же текста в разных разделах документации без какой-либо
+  конкретики бросить все и направить усилия на поиск других вариантов. Лишь только после того, как все другие бесплатные
+  варианты были опробованы и отброшены, пришлось вернуться к более скурпулезному изучению этого облачного сервиса.
+</p>
+<p>
+  Каждое действие в AWS может быть выполнено несколькими методами. Можно использовать инструменты
+  <a href="https://aws.amazon.com/ru/console/">консоль</a>,
+  <a href="https://aws.amazon.com/ru/cli/">интерфейс командной строки</a>, python модуль
+  <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/index.html">boto3</a>. И даже, используя один из
+  вышеперечисленных инструментов, есть различные варианты развертывания приложения на любой "вкус и цвет" (например
+  <a href="https://aws.amazon.com/ru/getting-started/tutorials/deploy-code-vm/">CodeDeploy</a>
+  или
+  <a href="https://aws.amazon.com/ru/elasticbeanstalk/details/">Elastic Beanstalk</a>). И количество различных сервисов
+  постоянно растет.
+</p>
+<p>
+  Amazon, в отличие от Google, не предоставяет никаких кредитов для своих сервисов, однако также имеет годичный
+  <a href="https://aws.amazon.com/free">free tier</a>, в котором бесплатно (с ограничение на 750 инстанс-часов в месяц)
+  предоставляется инстанс <a href="https://aws.amazon.com/ru/ec2/instance-types/">t2.micro</a> с 1024Мб ОЗУ, который
+  идентичен <a href="https://cloud.google.com/appengine/docs/standard">F4-инстансу Google App Engine Standart</a>. Кроме
+  этого, в отличие от google, url бесплатных приложений (без своего купленного доменного имени) в Amazon выглядят, мягко
+  говоря, не запоминающимся набором цифр и букв, из-за чего виртуальные машины Amazon не имеют никаких преимуществ, и,
+  после некоторых проб я отбросил этот тип виртуальных машин.
+</p>
+<p>
+  Среди этого разнообразия у Amazon есть сервис, который показался мне наиболее привлекателен. Речь идет о
+  <a href="https://aws.amazon.com/ru/lambda">AWS Lambda</a>. Да, у других облачных сервисов также есть подобный сервис
+  (например <a href="https://azure.microsoft.com/en-us/services/functions/">Azure Function</a> или
+  <a href="https://cloud.google.com/functions">Cloud Function</a>) с примерно такими же условиями использования, но
+  Amazon для своих Lambda функций предлагает больше максимально возможной оперативной памяти (3Гб), поэтому я решил это
+  попробовать.
+</p>
+<p>
+  <span>AWS Lambda</span> позволяет создать бессерверную функцию, запускающееся по определенному триггеру. Таким
+  триггером (помимо записи в БД, записи в хранилище и пр.) может быть и вызов через
+  <a href="https://aws.amazon.com/ru/api-gateway/">API-Gateway</a>, что позволяет создать полноценное бессерверное
+  приложение с доступом по url-ссылке. Lambda-приложение довольно быстро запускается при запросе, выполняет необходимые
+  действия и через некоторое время выключается; автоматически масштабируется при увеличении нагрузки, имеет возможность
+  использовать до 3Гб ОЗУ и
+  <a href="https://docs.aws.amazon.com/lambda/latest/dg/gettingstarted-limits.html">многое-многое другое</a>. И все это
+  <a href="https://aws.amazon.com/ru/lambda/pricing/">бесплатно</a> на постоянной основе с ограничением в 1 миллион
+  запросов (или 400000ГБ/с) в месяц , что для реализуемого проекта вполне достаточно.
+</p>
+<p>
+  Таким образом, родился очередной план: все вычисления будут производиться на <span>AWS Lambda</span>, а основное
+  приложение будет размещено где-нибудь на бесплатном <span>Google App Engine</span> или <span>Heroku</span>.
+</p>
+<p>
+  Тут же возникли нюансы. Сама по себе <span>AWS Lambda</span>-функция имеет "предустановленную" Amazon linux, runtime
+  (в моем случае python) и SDK для python-а (<a
+    href="https://boto3.amazonaws.com/v1/documentation/api/latest/index.html"
+    >boto3</a
+  >). А <span>Deployment package</span> (пакет развертывания) <span>AWS Lambda</span>, включающий в себя все необходимые
+  подключаемые python-модули и саму функцию не может превышать 250Мб в разархивированном виде. Таким образом о PyTorch
+  (сpu-версия которого занимает более 500Мб) на Lambda можно забыть. Да, имеется
+  <a href="https://aws.amazon.com/ru/blogs/compute/introducing-the-c-lambda-runtime/">C++ runtime</a>, что может
+  позволить работать с PyTorch-моделями, преобразованными TorchScript, но оставляю эти возможности на будущее
+  рассмотрение, когда хоть немного поднакоплю знаний в C++. В голову приходит вариант
+  <a href="https://ru.wikipedia.org/wiki/ONNX">ONNX</a>, поддержка которой в
+  <a href="https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html">PyTorch</a>
+  активно расширяется благодаря сотрудничеству с Microsoft. Так, буквально до конца 2019г. достаточно много моделей
+  PyTorch, которые использовали билинейную интерполяцию, без определенных усилий преобразовать в ONNX было
+  <a href="https://github.com/pytorch/pytorch/issues/22906">невозможно</a> из-за несовместимости операций интерполяции
+  PyTorch и ONNX, что было исправлено только в наборе операций ONNX <span>opset&nbsp11</span>.
+</p>
+<p>
+  Но, на конец 2019г., все используемые в проекте снандартные модели <span>torchvision</span> без каких-либо сложностей
+  трансформировались в ONNX при указании <span>opset&nbsp11</span> в параметрах. Эксперименты с преобразованием
+  показали, что динамически изменяемых размер входного изображения практически не работает, что демонстрируется
+  неправильными результатами, выдаваемыми преобразованной в ONNX моделью. Поэтому было решено для всех моделей
+  преобразовывать размер входного изображение к "квадратной форме", интерполируя изображение, чтобы большая его сторона
+  соответствовала выбранному заранее размеру стороны квадрата, и добавляя паддинги у меньшей стороны. Размеры квадрата
+  определялись экспериментальным путем из соображений компромисса между производительностью и точностью. Для
+  <span>inference</span> преобразованных моделей использовался
+  <a href="https://github.com/microsoft/onnxruntime">onnxruntime</a> ввиду того, что на момент экспериментов (начало
+  2020г.) мне так и не удалось заставить работать модели с <span>opset&nbsp11</span> в <span>torch.onnx и CAFFE2</span>.
+  Все преобразования входных изображений осуществлялись в чистом <span>numpy</span>. Эксперименты проводились в
+  <span>Google Colab</span> в
+  <a href="https://colab.research.google.com/github/tuuka/cv-demo/blob/master/Convert_To_ONNX.ipynb">этом</a>
+  ноутбуке.
+</p>
+<p>
+  Итого, я получил ONNX-модели, которые загрузил в
+  <a href="https://aws.amazon.com/ru/s3/">Amazon S3</a> хранилише, откуда потом их будет использовать Lambda. Сама по
+  себе Lambda-функция может быть запущена по событию, будь то появление нового файла в хранилище S3, срабатывания
+  таймера, обращение по ссылке из интернета через API Gateway и прочее. Lambda-функцию также можно вызывать через модуль
+  <span>boto3</span>, но для удобства я реализовал вариант обращения к этой фукнции непосредственно по url через
+  интернет, чтобы избежать импорт лишних модулей в серверной части и получить возможность в будущем вызывать
+  Lambda-функцию непосредственно из клиентского <span>JavaScript</span>-а. Для реализации этого подхода необходимо
+  создать Lambda-приложение, включающее в себя саму Lambda-функцию со всеми необходимыми зависимостями для выполнения
+  кода и <a href="https://aws.amazon.com/ru/api-gateway/">Amazon API Gateway</a>, выступающий в роли шлюза между
+  функцией и интернетом и обеспечивающий внешний url для вызова функции.
+</p>
+<p>
+  С учетом вышеизложенного, возникла необходимость пересмотреть код серверной части приложения. Для более удообного
+  дебаггинга сперва я сделал локальную Lambda-функцию, код которой, собственно, и будет залит в облако. Основная часть,
+  как и ранее, будет получать из клиентского JavaScript-а название модели и изображение, после чего вызывать функцию
+  <span>get_prediction</span> из соответствующего разделу файла <span>utils.py</span>, откуда уже и будет вызываться
+  Lambda. В качестве параметров, передаваемых Lambda-функции будут: название модели, кодированное в base64 изображение,
+  необходимый размер входного изображения для ONNX-модели и прочие параметры. Для раздела семантической сегментации,
+  например, дополнительными параметрами могут быть topN рассматриваемых классов и массив с метками этих классов. Весь
+  процесс обработки изображения и создания цветной маски будет происходить в Lambda.
+</p>
+<p>
+  Для возможности в дальнейшем удобного "переключения" между локальной и размещенной в облаке Lambda-функцией я ввел в
+  конфигурацию приложения логическую переменную
+  <span>LAMBDA_LOCAL</span>. Изначально, для каждого раздела была написана своя Lambda, но позже, с учетом того, что
+  большая часть кода повторяется, было решено сделать одну функцию на все разделы, поместив ее в
+  <span>/cv-demo/app/cvdemolambda.py</span>
+</p>
+<p>
+  Так как для большинства моделей необходима предварительная нормализация входных данных, преобразование в/из
+  PIL-формата, ресайз и паддинг, а ONNX-модели работают с чистым numpy, понадобился универсальный класс, который будет
+  осуществлять все необходимые преобразования и будет располагаться в одном файле с Lambda-функцией:
+</p>
+<div class="code-spoiler"></div>
+<pre>
+class NumpyTransforms():
+    def __init__(self, image_size=800, size_divisible=32,
+                 image_mean=[0.485, 0.456, 0.406],
+                 image_std=[0.229, 0.224, 0.225]):
+        self.image_size = image_size
+        self.mean = np.array(image_mean, dtype=np.float32)
+        self.std = np.array(image_std, dtype=np.float32)
+        self.size_divisible = size_divisible
+
+    def __call__(self, image, normalize=True):
+        if not isinstance(image, Image.Image):
+            raise ValueError("image is expected to be PIL Image "
+                             ", got {}".format(type(image)))
+        image = self.resize(image, self.image_size)
+        image = self.from_PIL(image)
+        if normalize:
+            image = (image - self.mean[:, None, None]) / self.std[:, None, None]
+        image_size = image.shape[-2:]
+        image = self.batch_image(image, self.size_divisible)[None]
+        return image, image_size
+
+    def from_PIL(self, img):
+        return np.array(img, dtype=np.float32).transpose(2, 0, 1) / 255
+
+    def to_PIL(self, img):
+        # only one image [C, H ,W] is allowed
+        if img.ndim > 3: img = img[0]
+        return Image.fromarray((img.transpose(1, 2, 0) * 255).astype(np.uint8), mode="RGB")
+
+    def denorm_to_PIL(self, img):
+        # only one image [C, H ,W] is allowed
+        if img.ndim > 3: img = img[0]
+        img = (img * self.std[:, None, None]) + self.mean[:, None, None]
+        return self.to_PIL(img)
+
+    def batch_image(self, image, size_divisible=32.):
+        self.padded_size = int(np.ceil(float(self.image_size) / size_divisible) * size_divisible)
+        padding = [(self.padded_size - s2) for s2 in image.shape[-2:]]
+        padded_img = np.pad(image, ((0, 0), (0, padding[0]), (0, padding[1])))
+        return padded_img
+
+    def resize(self, image, size):
+        w, h = image.size
+        scale_factor = size / h
+        if w * scale_factor > self.image_size:
+            scale_factor = self.image_size / w
+        new_h = int(h * scale_factor)
+        new_w = int(w * scale_factor)
+        return image.resize((new_w, new_h), Image.BILINEAR)</pre
+>
+<p>
+  Все операции в Lambda осуществляются через
+  <span>lambda_handler</span>, с параметрами <span>event</span> и <span>context</span>. В первом будут заключены
+  передаваемые нами данные (в облаке в этот параметр будут инкапсулированны данные из API-Gateway), а во
+  <a href="https://docs.aws.amazon.com/lambda/latest/dg/python-context.html">втором</a>
+  - данные самой функции (название, версия и пр.), которые нам пока не понадобятся.
+</p>
+<p>
+  В <span>lambda_handler</span> из <span>event</span> получаем входные параметры (модель, кодированное изображение и
+  пр.), декодируем, преобразовываем изображение в соответствии с типом задачи и другими параметрами; с помощью модуля
+  <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/index.html">boto3</a>
+  скачиваем из S3-хранилища файл модели, загружаем в <span>onnx-runtime</span>, прогоняем подготовленное изображение
+  через модель, обрабатываем выход модели в зависимости от типа задачи, кодируем и возвращаем результат. Для анализа
+  временных затрат, я добавил еще тайминг на каждую операцию. Полный код находится в файле
+  <a href="https://github.com/tuuka/cv-demo/blob/master/app/cvdemolambda.py">/cv-demo/app/cvdemolambda.py</a>.
+</p>
+<p>
+  Развернуть
+  <a href="https://docs.aws.amazon.com/lambda/latest/dg/deploying-lambda-apps.html">Lambda-приложение</a>
+  (в моем случае это совокупность самой Lambda-функции, API Gateway и сопутствующих ресурсов) в облаке AWS можно
+  различными способами, как через
+  <a href="https://console.aws.amazon.com/">консоль</a>, так и через
+  <a href="https://aws.amazon.com/cli/">AWS&nbspCLI</a>. Однако для меня эти варианты показались жутко неудобными и
+  запутанными, из-за чего я использовал для этих целей
+  <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/index.html">SDK&nbspboto3</a>. Сама по себе
+  документация к этому SDK достаточно информативна, и, кроме этого, имеется отличный
+  <a href="https://github.com/awsdocs/aws-doc-sdk-examples/tree/master/python/example_code/lambda">репозиторий</a>
+  с наглядными примерами.
+</p>
+<p>
+  Так как в моем случае Lambda бедет оперировать с ONNX-моделями, необходимо позаботится о наличии
+  <span>numpy</span>, <span>Pillow</span> и <span>onnxrumtime</span> модулей. Лучший способ добавить модули в
+  создаваемую Lambda это запаковать их в слой (layer), который будет потом подключен к Lambda-функции. Созданию
+  AWS-Lambda функций со слоями посвящено достаточно много статей, например
+  <a href="https://dev.to/matthewvielkind/getting-started-with-aws-lambda-layers-4ipk">вот</a>
+  или
+  <a href="https://towardsdatascience.com/introduction-to-amazon-lambda-layers-and-boto3-using-python3-39bd390add17"
+    >вот</a
+  >. Основной принцип создания слоя заключается в создании zip-архива в файлом зависимостей
+  <span>requirements.txt</span> и папкой <span>python</span>, где лежат все необходимые импортируемые Lambda-функцией
+  модули. Учитывая, что дополнительные модули должны быть полностью совместимы со средой выполнения AWS-Lambda, лучший
+  способ создать слой, - сделать это в docker-контейнере с точной копией Amazon-linux. Создается папка, где будет
+  размещаться содержимое слоя, например, <span>aws-layer</span>, туда помещается файл <span>requirements.txt</span> со
+  следующим содержимым:
+</p>
+<pre open visible>
+    numpy
+    Pillow
+    onnxruntime</pre
+>
+<p>
+  После этого, подразумевая, что в качестве среды выполнения будет использоваться python версии 3.7, запускаем
+  Docker-контейнер с Amazon-linux:
+</p>
+<pre>
+    mkdir aws-layer
+    cd aws-layer
+    docker run --rm -it -v ${pwd}:/work -w /work lambci/lambda:build-python3.7 bash</pre
+>
+<p>
+  Внутри контейнера устанавливаем необходимые модули из файла
+  <span>requirements.txt</span> в папку <span>python</span>:
+</p>
+<pre>   pip install -r requirements.txt -t python</pre>
+<p>Переходим в созданную папку <span>python</span> с модулями и архивируем их:</p>
+<pre>
+    cd python
+    zip -r Numpy118-Pillow-onnxruntime120.zip</pre
+>
+<p><span>Lambda-layer</span> готов.</p>
+<p>
+  Немного модифицировав код из указанного выше
+  <a href="https://github.com/awsdocs/aws-doc-sdk-examples/tree/master/python/example_code/lambda">репозитория</a>, я
+  получил удобный питоновский файл
+  <a href="https://github.com/tuuka/cv-demo/blob/master/lambda_deploy.py">cv-demo/lambda_deploy.py</a>, с помощью
+  которого можно осуществить абсолютно все необходимые действия по размещению Lambda-приложения с учетом подключения
+  необходимых слоев, назначения необходимых ролей и политик, cоздания и конфигурирования API_Gateway и пр.. Пример
+  строки запуска:
+</p>
+<pre>
+   python lambda_deploy.py -n cvdemoonnxfunction -s app/cvdemolambda.py -reg us-west-2 -t 30 -l Numpy118-Pillow-onnxruntime120.zip</pre
+>
+<p>
+  Если запуск вышеприведенного кода прошел успешно (что можно понять по результирующей url-ссылке для вызова
+  Lamda-приложения в довольно внушительных логах), размещение AWS-Lambda-приложения успешно завершено. Сбрасываем флаг
+  <span>LAMBDA_LOCAL</span> в конфигурации приложения (или в переменных среды), после чего вызов Lambda-функции будет
+  осуществляется из <span>utils.get_prediction</span> с помощью post-запроса по url, полученному после размещения Lambda
+  в облаке на предыдущем этапе. Примерно так это выглядит:
+</p>
+<pre>
+    r = requests.post('https://4cdim2jvo8.execute-api.us-west-2.amazonaws.com/prod/example',
+                      data=json.dumps(lambda_params).encode())
+    r = json.loads(r.text)</pre
+>
+<p>
+  Таким образом, я избавился от необходимости использования "тяжелых" модулей типа PyTorch, тем самым разгрузив основную
+  часть приложения, и теперь ее можно разместить на том же Heroku. Однако, появились новые мысли по оптимизации, да и
+  вид html-страниц моего приложения стал вгонять меня в тоску. Закоммитив вышенаписанное (<span>git checkout v09</span
+  >). Я принялся все ломать...
+</p>
