@@ -12,7 +12,8 @@ automatic_scaling:
   max_concurrent_requests: 50
 
 env_variables:
-  LAMBDA_URL: https://3bhj3sj0d6.execute-api.us-west-2.amazonaws.com/prod/predict
+  LAMBDA_URL: https://sl1cpqn8tg.execute-api.us-west-2.amazonaws.com/prod/predict
+
 
 handlers:
   - url: /.*

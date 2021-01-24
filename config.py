@@ -28,7 +28,7 @@ class Config(object):
     LAMBDA_FROM_JS = str2bool(os.environ.get('LAMBDA_FROM_JS', True))
 
     # lambda aws url
-    LAMBDA_URL = os.environ.get('LAMBDA_URL', None)
+    LAMBDA_URL = os.environ.get('LAMBDA_URL', 'https://sl1cpqn8tg.execute-api.us-west-2.amazonaws.com/prod/predict')
 
 
 

@@ -228,7 +228,7 @@ def lambda_handler(event, context):
             t = time.time()
             if not os.path.exists(f'/tmp/{model_file}'):
                 s3 = boto3.resource('s3')
-                s3.Bucket('onnx-models').download_file(model_file,
+                s3.Bucket('tuuka-onnx-models').download_file(model_file,
                                                        f'/tmp/{model_file}')
             model_load_time = round(time.time() - t, 2)
 

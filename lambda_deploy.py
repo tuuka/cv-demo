@@ -88,7 +88,7 @@ def create_iam_role_for_lambda(iam_role_name):
 
     # Attach the AWSLambdaBasicExecutionRole (AWSLambdaExecute) policy to the role
     # If planning to use AWS X-Ray, also attach the AWSXrayWriteOnlyAccess policy
-    lambda_policy_arn = 'arn:aws:iam::aws:policy/service-role/AWSLambdaExecute'
+    lambda_policy_arn = 'arn:aws:iam::aws:policy/AWSLambdaExecute'
     try:
         iam_client.attach_role_policy(RoleName=iam_role_name,
                                       PolicyArn=lambda_policy_arn)
